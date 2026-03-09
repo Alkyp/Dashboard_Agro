@@ -1,0 +1,161 @@
+/* ============================================================
+   Dashboard Agro — tables.css
+   Table & data display styles
+   ============================================================ */
+
+/* ── Wrapper ───────────────────────────────────────────────── */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Table ─────────────────────────────────────────────────── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.87rem;
+  min-width: 560px;
+}
+
+/* ── Header ────────────────────────────────────────────────── */
+.data-table thead th {
+  font-size: 0.70rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 10px 16px;
+  border-bottom: 1.5px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+  background: var(--cream);
+}
+
+.data-table thead th:first-child { border-radius: var(--radius-sm) 0 0 0; }
+.data-table thead th:last-child  { border-radius: 0 var(--radius-sm) 0 0; }
+
+/* ── Body ──────────────────────────────────────────────────── */
+.data-table tbody tr {
+  border-bottom: 1px solid var(--border-soft);
+  transition: background 0.12s;
+}
+
+.data-table tbody tr:hover { background: #F5FAF6; }
+.data-table tbody tr:last-child { border-bottom: none; }
+
+.data-table tbody td {
+  padding: 13px 16px;
+  vertical-align: middle;
+}
+
+/* ── Cell Helpers ──────────────────────────────────────────── */
+.td-bold   { font-weight: 600; color: var(--text); }
+.td-muted  { color: var(--text-muted); font-size: 0.82rem; }
+.td-mono   { font-family: 'JetBrains Mono', monospace; font-size: 0.83rem; }
+.td-right  { text-align: right; }
+.td-center { text-align: center; }
+
+/* ── Product cell with icon ────────────────────────────────── */
+.td-product {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.td-product-icon {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  background: var(--leaf-pale);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* ── Reseller name cell ────────────────────────────────────── */
+.td-person {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.td-avatar {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--leaf), var(--forest-mid));
+  color: #fff; font-weight: 700; font-size: 0.78rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Stock Cell ────────────────────────────────────────────── */
+.stock-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.80rem;
+}
+.stock-ok   { background: rgba(82,183,136,0.12); color: #276749; }
+.stock-warn { background: rgba(233,196,106,0.2);  color: #7B5A00; }
+.stock-low  { background: rgba(224,124,92,0.12);  color: #9B3B1E; }
+
+/* ── Rank Numbers ──────────────────────────────────────────── */
+.rank-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+.rank-1 { background: rgba(233,196,106,0.2); color: #92610A; }
+.rank-2 { background: rgba(160,174,192,0.2); color: #4A5568; }
+.rank-3 { background: rgba(139,94,60,0.15);  color: #5C3D2E; }
+.rank-n { background: var(--cream); color: var(--text-muted); }
+
+/* ── Leaderboard Row ───────────────────────────────────────── */
+.lb-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-soft);
+  background: var(--white);
+  transition: all 0.15s;
+  margin-bottom: 8px;
+}
+.lb-row:hover { border-color: var(--leaf); box-shadow: var(--shadow-xs); }
+.lb-row.top1 { border-color: rgba(233,196,106,0.5); background: rgba(233,196,106,0.04); }
+.lb-row.top2 { border-color: rgba(160,174,192,0.5); }
+.lb-row.top3 { border-color: rgba(139,94,60,0.3); }
+
+.lb-info { flex: 1; min-width: 0; }
+.lb-name { font-weight: 700; font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-sub  { font-size: 0.77rem; color: var(--text-muted); margin-top: 2px; }
+.lb-value { text-align: right; }
+.lb-amount { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.92rem; color: var(--forest); }
+.lb-tx     { font-size: 0.73rem; color: var(--text-muted); margin-top: 2px; }
+.lb-bar-wrap { width: 90px; }
+
+/* ── Filter Bar ────────────────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--cream);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.filter-label {
+  font-size: 0.77rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-right: 4px;
+}

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Profil — Dashboard Agro{% endblock %}
+{% block page_title %}Profil Saya{% endblock %}
+
+{% block content %}
+<div style="max-width:580px;display:flex;flex-direction:column;gap:18px;">
+  <!-- Profile Header Card -->
+  <div class="card">
+    <div class="card-body" style="display:flex;align-items:center;gap:20px;">
+      <div style="width:64px;height:64px;border-radius:18px;
+                  background:linear-gradient(135deg,var(--leaf),var(--forest-mid));
+                  display:flex;align-items:center;justify-content:center;
+                  font-size:1.6rem;font-weight:800;color:#fff;
+                  box-shadow:0 6px 20px rgba(82,183,136,0.35);flex-shrink:0;">
+        {{ user.name[0]|upper }}
+      </div>
+      <div>
+        <h2 style="font-size:1.2rem;color:var(--forest);margin-bottom:4px;">{{ user.name }}</h2>
+        <div style="font-size:0.83rem;color:var(--text-muted);">{{ user.email }}</div>
+        <span class="badge {% if user.role == 'admin' %}badge-blue{% else %}badge-green{% endif %}" style="margin-top:8px;">
+          {{ user.role|title }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Form -->
+  <div class="form-card">
+    <div class="form-card-header"><h2>Edit Profil</h2></div>
+    <div class="form-card-body">
+      <form method="POST" id="profile-form">
+        <div class="form-group">
+          <label class="form-label">Nama Lengkap <span class="req">*</span></label>
+          <input class="form-control" type="text" name="name" required value="{{ user.name }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-control" type="email" value="{{ user.email }}" disabled>
+          <div class="form-hint">Email tidak dapat diubah.</div>
+        </div>
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label class="form-label">Nama Perusahaan</label>
+            <input class="form-control" type="text" name="company" value="{{ user.company or '' }}" placeholder="PT / CV / UD ...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Telepon</label>
+            <input class="form-control" type="text" name="phone" value="{{ user.phone or '' }}" placeholder="021-xxxxxxx">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Alamat</label>
+          <textarea class="form-control" name="address" rows="2" placeholder="Kota, Provinsi">{{ user.address or '' }}</textarea>
+        </div>
+
+        <div style="background:var(--cream);border-radius:var(--radius);padding:16px;border:1px solid var(--border);margin-top:4px;">
+          <div class="form-section-title" style="margin-bottom:14px;">Ganti Password</div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Password Baru</label>
+            <input class="form-control" type="password" name="new_password" placeholder="Kosongkan jika tidak ingin mengganti" minlength="6">
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="form-card-footer">
+      <button type="submit" form="profile-form" class="btn btn-primary">Simpan Perubahan</button>
+    </div>
+  </div>
+
+  <!-- Info Card -->
+  <div class="card">
+    <div class="card-body">
+      <div class="card-title" style="margin-bottom:14px;">Info Akun</div>
+      <div class="grid-2">
+        <div>
+          <div style="font-size:0.70rem;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-muted);margin-bottom:4px;">Role</div>
+          <div style="font-weight:600;">{{ user.role|title }}</div>
+        </div>
+        <div>
+          <div style="font-size:0.70rem;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-muted);margin-bottom:4px;">Terdaftar Sejak</div>
+          <div class="mono" style="font-size:0.85rem;">{{ user.created_at[:10] }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

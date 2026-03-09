@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Tambah Produk{% endblock %}
+{% block page_title %}Tambah Produk{% endblock %}
+
+{% block content %}
+<div style="max-width:600px;">
+  <div class="card">
+    <form method="POST">
+      {% if session.role == 'admin' %}
+      <div class="form-group">
+        <label>Distributor</label>
+        <select name="distributor_id" required>
+          <option value="">-- Pilih Distributor --</option>
+          {% for d in distributors %}
+          <option value="{{ d.id }}">{{ d.company }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+      <div class="form-group">
+        <label>Nama Produk</label>
+        <input type="text" name="name" required placeholder="Contoh: Royal Spice Original 250g">
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label>SKU</label>
+          <input type="text" name="sku" placeholder="RSO-250">
+        </div>
+        <div class="form-group">
+          <label>Kategori</label>
+          <input type="text" name="category" placeholder="Bumbu, Saus, dll.">
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label>Harga (Rp)</label>
+          <input type="number" name="price" required placeholder="15000" min="0">
+        </div>
+        <div class="form-group">
+          <label>Stok Awal</label>
+          <input type="number" name="stock" required placeholder="100" min="0">
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:8px;">
+        <button type="submit" class="btn btn-primary">Simpan Produk</button>
+        <a href="{{ url_for('products') }}" class="btn btn-secondary">Batal</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

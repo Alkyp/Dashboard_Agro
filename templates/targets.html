@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Target — Dashboard Agro{% endblock %}
+{% block page_title %}Target Penjualan{% endblock %}
+
+{% block content %}
+<div class="card">
+  {% if rows %}
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          {% if session.role == 'admin' %}<th>Distributor</th>{% endif %}
+          <th>Periode</th>
+          <th>Reseller / Level</th>
+          <th>Target</th>
+          <th>Tercapai</th>
+          <th>Progres</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in rows %}
+        {% set pct = (t.achieved / t.target_amount * 100)|int if t.target_amount > 0 else 0 %}
+        <tr>
+          {% if session.role == 'admin' %}<td class="td-muted" style="font-size:0.80rem;">{{ t.dist_name }}</td>{% endif %}
+          <td class="mono td-muted">{{ t.period }}</td>
+          <td style="font-weight:600;">{{ t.reseller_name or '— Distributor —' }}</td>
+          <td class="mono">{{ t.target_amount|rupiah }}</td>
+          <td>
+            <span class="mono" style="font-weight:700;color:{% if pct >= 100 %}var(--leaf){% elif pct >= 70 %}var(--wheat-dark){% else %}var(--danger){% endif %};">
+              {{ t.achieved|rupiah }}
+            </span>
+          </td>
+          <td style="min-width:140px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="prog-bar" style="flex:1;">
+                <div class="prog-fill {% if pct >= 100 %}over{% elif pct < 70 %}crit{% elif pct < 90 %}warn{% endif %}"
+                     style="width:{{ [pct,100]|min }}%;"></div>
+              </div>
+              <span class="mono" style="font-size:0.78rem;font-weight:700;min-width:36px;text-align:right;">{{ pct }}%</span>
+            </div>
+          </td>
+          <td>
+            {% if pct >= 100 %}
+              <span style="font-size:0.80rem;color:var(--leaf);font-weight:600;">✓ Tercapai</span>
+            {% elif pct >= 70 %}
+              <span style="font-size:0.80rem;color:var(--wheat-dark);font-weight:600;">⚡ Mendekati</span>
+            {% else %}
+              <span style="font-size:0.80rem;color:var(--danger);font-weight:600;">✗ Kurang</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+    <p>Belum ada data target.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

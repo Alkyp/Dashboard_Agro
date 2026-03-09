@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}Edit Penjualan{% endblock %}
+{% block page_title %}Edit Penjualan{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/sale_form.js') }}"></script>{% endblock %}
+
+{% block content %}
+<div style="max-width:680px;">
+  <div class="form-card">
+    <div class="form-card-header">
+      <h2>Edit Transaksi #{{ sale.id }}</h2>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-top:4px;">
+        Perubahan qty akan otomatis menyesuaikan stok produk.
+      </p>
+    </div>
+    <div class="form-card-body">
+      <form method="POST" id="sale-form">
+
+        <!-- Product data JSON for JS -->
+        <script type="application/json" id="product-data-json">{{ products_json | safe }}</script>
+
+        <div class="form-section-title">Detail Transaksi</div>
+
+        <div class="form-group">
+          <label class="form-label">Produk</label>
+          <input class="form-control" type="text" value="{{ sale.product_name if sale.product_name else '—' }}" disabled
+                 style="background:var(--cream);color:var(--text-muted);">
+          <input type="hidden" name="product_id" id="product-select" value="{{ sale.product_id }}">
+          <div class="form-hint" id="stock-hint">
+            {% for p in products %}{% if p.id == sale.product_id %}Stok saat ini: {{ p.stock }} {{ p.unit }}{% endif %}{% endfor %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Reseller</label>
+          <select class="form-control" name="reseller_id" id="reseller-select">
+            <option value="">— Tanpa Reseller —</option>
+            {% for r in resellers %}
+            <option value="{{ r.id }}" {% if r.id == sale.reseller_id %}selected{% endif %}>
+              {{ r.name }}{% if r.area %} — {{ r.area }}{% endif %}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-row form-row-3">
+          <div class="form-group">
+            <label class="form-label">Jumlah (Qty) <span class="req">*</span></label>
+            <input class="form-control" type="number" name="quantity" id="qty-input"
+                   min="1" required value="{{ sale.quantity }}">
+            <div class="form-hint" id="unit-label"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Harga Satuan (Rp) <span class="req">*</span></label>
+            <input class="form-control" type="number" name="unit_price" id="price-input"
+                   min="0" required value="{{ sale.unit_price }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Diskon (%)</label>
+            <input class="form-control" type="number" name="discount_pct" id="disc-input"
+                   min="0" max="100" step="0.5" value="{{ sale.discount_pct }}">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Total</label>
+          <input class="form-control form-computed" type="number" name="total"
+                 id="total-input" readonly value="{{ sale.total }}">
+          <div class="form-hint" id="total-display" style="font-size:0.92rem;color:var(--forest);font-weight:700;margin-top:8px;">
+            {{ sale.total|rupiah }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tanggal Penjualan</label>
+          <input class="form-control" type="datetime-local" name="sale_date"
+                 value="{{ sale.sale_date[:16].replace(' ','T') if sale.sale_date else '' }}">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Catatan</label>
+          <textarea class="form-control" name="notes" rows="2">{{ sale.notes or '' }}</textarea>
+        </div>
+      </form>
+    </div>
+    <div class="form-card-footer">
+      <button type="submit" form="sale-form" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/></svg>
+        Simpan Perubahan
+      </button>
+      <a href="{{ url_for('sales') }}" class="btn btn-outline">Batal</a>
+      <button class="btn btn-danger" style="margin-left:auto;"
+        onclick="showDeleteModal({
+          title: 'Hapus Transaksi Ini',
+          message: 'Hapus transaksi #{{ sale.id }}? Stok akan dikembalikan sebanyak {{ sale.quantity }} unit.',
+          action: '{{ url_for('delete_sale', sid=sale.id) }}'
+        })">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        Hapus Transaksi
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Pre-load product data from inline JSON so SaleForm.calcTotal() works
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    const arr = JSON.parse(document.getElementById('product-data-json').textContent);
+    arr.forEach(p => { SaleForm.productData[p.id] = p; });
+  } catch(e){}
+  // Trigger initial calc
+  SaleForm.calcTotal();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% block title %}Beranda — Dashboard Agro{% endblock %}
+{% block page_title %}Beranda{% endblock %}
+
+{% block topbar_right %}
+<span style="font-size:0.8rem;color:var(--text-muted);">{{ now.strftime('%d %B %Y') }}</span>
+{% endblock %}
+
+{% block content %}
+<!-- ── Stat Cards ───────────────────────────────────────────── -->
+<div class="grid-4" style="margin-bottom:22px;">
+  <div class="stat-card fade-in fade-in-1" style="color:var(--leaf);">
+    <div class="stat-icon stat-icon-green">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    </div>
+    <div class="stat-label">Pendapatan Bulan Ini</div>
+    <div class="stat-value" id="stat-revenue">{{ month_rev|rupiah }}</div>
+    <div class="stat-sub">{{ now.strftime('%B %Y') }}</div>
+  </div>
+
+  <div class="stat-card fade-in fade-in-2" style="color:var(--wheat-dark);">
+    <div class="stat-icon stat-icon-wheat">
+      <svg viewBox="0 0 24 24"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+    </div>
+    <div class="stat-label">Transaksi</div>
+    <div class="stat-value">{{ month_tx }}</div>
+    <div class="stat-sub">Bulan ini</div>
+  </div>
+
+  <div class="stat-card fade-in fade-in-3" style="color:var(--earth);">
+    <div class="stat-icon stat-icon-earth">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+    <div class="stat-label">Reseller Aktif</div>
+    <div class="stat-value">{{ reseller_cnt }}</div>
+    <div class="stat-sub">Terdaftar</div>
+  </div>
+
+  <div class="stat-card fade-in fade-in-4" style="color:#2E86C1;">
+    <div class="stat-icon stat-icon-blue">
+      <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+    </div>
+    <div class="stat-label">Estimasi Komisi</div>
+    <div class="stat-value">{{ commission|rupiah }}</div>
+    <div class="stat-sub">5% dari pendapatan</div>
+  </div>
+</div>
+
+<!-- ── Charts + Top Reseller ───────────────────────────────── -->
+<div class="grid-2" style="margin-bottom:22px;">
+  <!-- Revenue Chart -->
+  <div class="card fade-in" style="animation-delay:0.12s;">
+    <div class="card-header">
+      <span class="card-title">Tren Pendapatan 6 Bulan</span>
+      <span style="font-size:0.75rem;color:var(--text-muted);">{{ now.strftime('%Y') }}</span>
+    </div>
+    <div class="chart-container">
+      <div id="revenue-chart"
+           data-chart='{{ chart_data | tojson }}'
+           data-chart-opts='{"height":160}'
+           style="height:160px;"></div>
+    </div>
+  </div>
+
+  <!-- Top Resellers -->
+  <div class="card fade-in" style="animation-delay:0.16s;">
+    <div class="card-header">
+      <span class="card-title">Top Reseller Bulan Ini</span>
+      <a href="{{ url_for('resellers') }}" class="btn btn-sm btn-ghost">Lihat Semua →</a>
+    </div>
+    <div class="card-body">
+      {% if top_resellers %}
+        {% for r in top_resellers %}
+        <div class="reseller-mini">
+          <div class="reseller-mini-rank">
+            <span class="rank-num rank-{% if loop.index <= 3 %}{{ loop.index }}{% else %}n{% endif %}">
+              {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}#{{ loop.index }}{% endif %}
+            </span>
+          </div>
+          <div class="reseller-mini-info">
+            <div class="reseller-mini-name">{{ r.name }}</div>
+            <div class="reseller-mini-bar">
+              <div class="prog-bar">
+                <div class="prog-fill" style="width:{{ (r.total_sales / top_resellers[0].total_sales * 100)|int if top_resellers[0].total_sales > 0 else 0 }}%;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="reseller-mini-val mono">{{ r.total_sales|rupiah }}</div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          <p>Belum ada data reseller bulan ini</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ── Stock Table ──────────────────────────────────────────── -->
+<div class="card fade-in" style="animation-delay:0.20s;">
+  <div class="card-header">
+    <span class="card-title">Stok Produk Saya</span>
+    <a href="{{ url_for('products') }}" class="btn btn-sm btn-primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4"/></svg>
+      Kelola Produk
+    </a>
+  </div>
+  {% if stock %}
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Produk</th>
+          <th>Kategori</th>
+          <th>Stok</th>
+          <th>Min. Stok</th>
+          <th>Status</th>
+          <th>Update</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in stock %}
+        <tr>
+          <td>
+            <div class="td-product">
+              <div class="td-product-icon">{{ p.icon or '🌿' }}</div>
+              <div>
+                <div class="td-bold">{{ p.name }}</div>
+                <div class="td-muted mono" style="font-size:0.75rem;">{{ p.sku or '—' }}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge-forest">{{ p.category or '—' }}</span></td>
+          <td>
+            <span class="stock-pill {% if p.stock > p.stock_min %}stock-ok{% elif p.stock > p.stock_min * 0.5 %}stock-warn{% else %}stock-low{% endif %}">
+              {{ p.stock }} {{ p.unit }}
+            </span>
+          </td>
+          <td class="td-muted">{{ p.stock_min }} {{ p.unit }}</td>
+          <td>
+            {% if p.stock > p.stock_min %}
+              <span style="font-size:0.80rem;color:var(--leaf);font-weight:600;">● Aman</span>
+            {% elif p.stock > p.stock_min * 0.5 %}
+              <span style="font-size:0.80rem;color:var(--wheat-dark);font-weight:600;">● Waspada</span>
+            {% else %}
+              <span style="font-size:0.80rem;color:var(--danger);font-weight:600;">● Kritis</span>
+            {% endif %}
+          </td>
+          <td class="td-muted mono" style="font-size:0.78rem;">{{ p.updated_at[:10] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8"/></svg>
+    <p>Belum ada produk. <a href="{{ url_for('add_product') }}" style="color:var(--leaf);">Tambah sekarang →</a></p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

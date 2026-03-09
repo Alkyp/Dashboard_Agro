@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}{% if prod %}Edit{% else %}Tambah{% endif %} Produk{% endblock %}
+{% block page_title %}{% if prod %}Edit Produk{% else %}Tambah Produk{% endif %}{% endblock %}
+
+{% block content %}
+<div style="max-width:640px;">
+  <div class="form-card">
+    <div class="form-card-header">
+      <h2>{% if prod %}Edit: {{ prod.name }}{% else %}Produk Baru{% endif %}</h2>
+    </div>
+    <div class="form-card-body">
+      <form method="POST" id="product-form">
+
+        {% if session.role == 'admin' and not prod %}
+        <div class="form-group">
+          <label class="form-label">Distributor <span class="req">*</span></label>
+          <select class="form-control" name="distributor_id" required>
+            <option value="">-- Pilih Distributor --</option>
+            {% for d in distributors %}
+            <option value="{{ d.id }}">{{ d.company }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <hr class="divider">
+        {% endif %}
+
+        <div class="form-section-title">Info Produk</div>
+
+        <div class="form-group">
+          <label class="form-label">Nama Produk <span class="req">*</span></label>
+          <input class="form-control" type="text" name="name" required
+                 value="{{ prod.name if prod else '' }}"
+                 placeholder="Contoh: Pupuk Urea Premium 50kg">
+        </div>
+
+        <div class="form-row form-row-3">
+          <div class="form-group">
+            <label class="form-label">SKU</label>
+            <input class="form-control" type="text" name="sku"
+                   value="{{ prod.sku if prod else '' }}" placeholder="PUP-50">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kategori</label>
+            <select class="form-control" name="category_id">
+              <option value="">-- Pilih Kategori --</option>
+              {% for cat in categories %}
+              <option value="{{ cat.id }}" {% if prod and prod.category_id == cat.id %}selected{% endif %}>
+                {{ cat.icon }} {{ cat.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Satuan</label>
+            <input class="form-control" type="text" name="unit"
+                   value="{{ prod.unit if prod else 'pcs' }}" placeholder="kg, pcs, botol...">
+          </div>
+        </div>
+
+        <div class="form-section-title">Harga & Stok</div>
+
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label class="form-label">Harga Jual (Rp) <span class="req">*</span></label>
+            <input class="form-control" type="number" name="price" required min="0"
+                   value="{{ prod.price if prod else '' }}" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Harga Pokok / HPP (Rp)</label>
+            <input class="form-control" type="number" name="cost_price" min="0"
+                   value="{{ prod.cost_price if prod else '' }}" placeholder="0">
+          </div>
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label class="form-label">Stok <span class="req">*</span></label>
+            <input class="form-control" type="number" name="stock" required min="0"
+                   value="{{ prod.stock if prod else '' }}" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Minimum Stok</label>
+            <input class="form-control" type="number" name="stock_min" min="0"
+                   value="{{ prod.stock_min if prod else '50' }}" placeholder="50">
+            <div class="form-hint">Di bawah nilai ini akan tampil peringatan stok kritis.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Deskripsi</label>
+          <textarea class="form-control" name="description" rows="2" placeholder="Opsional...">{{ prod.description if prod else '' }}</textarea>
+        </div>
+      </form>
+    </div>
+    <div class="form-card-footer">
+      <button type="submit" form="product-form" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/></svg>
+        {% if prod %}Update Produk{% else %}Simpan Produk{% endif %}
+      </button>
+      <a href="{{ url_for('products') }}" class="btn btn-outline">Batal</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

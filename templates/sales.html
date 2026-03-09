@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}Penjualan — Dashboard Agro{% endblock %}
+{% block page_title %}Penjualan{% endblock %}
+{% block topbar_right %}
+<a href="{{ url_for('add_sale') }}" class="btn btn-primary btn-sm">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  Tambah Penjualan
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  {% if session.role == 'admin' and distributors %}
+  <div class="filter-bar">
+    <span class="filter-label">Filter Distributor:</span>
+    <a href="{{ url_for('sales') }}" class="btn btn-sm {% if not dist_filter %}btn-forest{% else %}btn-ghost{% endif %}">Semua</a>
+    {% for d in distributors %}
+    <a href="{{ url_for('sales') }}?dist={{ d.id }}"
+       class="btn btn-sm {% if dist_filter == d.id|string %}btn-forest{% else %}btn-ghost{% endif %}">{{ d.company }}</a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if rows %}
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          {% if session.role == 'admin' %}<th>Distributor</th>{% endif %}
+          <th>Tanggal</th>
+          <th>Produk</th>
+          <th>Reseller</th>
+          <th>Qty</th>
+          <th>Harga</th>
+          <th>Diskon</th>
+          <th>Total</th>
+          <th style="text-align:center;">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          {% if session.role == 'admin' %}<td class="td-muted" style="font-size:0.80rem;">{{ r.dist_name }}</td>{% endif %}
+          <td class="td-muted mono" style="font-size:0.78rem;">{{ r.sale_date[:10] }}</td>
+          <td>
+            <div class="td-product">
+              <div class="td-product-icon">🌿</div>
+              <span class="td-bold">{{ r.product_name }}</span>
+            </div>
+          </td>
+          <td class="td-muted">{{ r.reseller_name or '—' }}</td>
+          <td><span class="badge badge-forest">{{ r.quantity }}</span></td>
+          <td class="mono">{{ r.unit_price|rupiah }}</td>
+          <td>{% if r.discount_pct > 0 %}<span class="badge badge-yellow">{{ r.discount_pct|int }}%</span>{% else %}—{% endif %}</td>
+          <td><span class="mono" style="font-weight:700;">{{ r.total|rupiah }}</span></td>
+          <td>
+            <div style="display:flex;gap:6px;justify-content:center;">
+              <a href="{{ url_for('edit_sale', sid=r.id) }}" class="btn btn-sm btn-outline"
+                 style="padding:5px 10px;" title="Edit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </a>
+              <button class="btn btn-sm btn-danger" style="padding:5px 10px;" title="Hapus"
+                onclick="showDeleteModal({
+                  title: 'Hapus Transaksi',
+                  message: 'Hapus penjualan <strong>{{ r.product_name }}</strong> ({{ r.quantity }} unit, {{ r.total|rupiah }})? Stok produk akan dikembalikan.',
+                  action: '{{ url_for('delete_sale', sid=r.id) }}'
+                })">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if total_pages > 1 %}
+  <div style="padding:16px 20px;border-top:1px solid var(--border-soft);">
+    <div class="pagination">
+      {% if page > 1 %}<a href="?page={{ page-1 }}{% if dist_filter %}&dist={{ dist_filter }}{% endif %}" class="page-btn">← Prev</a>{% endif %}
+      {% for p in range(1, total_pages+1) %}
+      <a href="?page={{ p }}{% if dist_filter %}&dist={{ dist_filter }}{% endif %}" class="page-btn {% if p == page %}active{% endif %}">{{ p }}</a>
+      {% endfor %}
+      {% if page < total_pages %}<a href="?page={{ page+1 }}{% if dist_filter %}&dist={{ dist_filter }}{% endif %}" class="page-btn">Next →</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+    <p>Belum ada data penjualan. <a href="{{ url_for('add_sale') }}" style="color:var(--leaf);">Tambah sekarang →</a></p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

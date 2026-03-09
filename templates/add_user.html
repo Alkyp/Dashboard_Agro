@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Tambah Pengguna{% endblock %}
+{% block page_title %}Tambah Pengguna{% endblock %}
+{% block content %}
+<div style="max-width:560px;">
+  <div class="form-card">
+    <div class="form-card-header"><h2>Pengguna Baru</h2></div>
+    <div class="form-card-body">
+      <form method="POST" id="user-form">
+        <div class="form-group">
+          <label class="form-label">Nama Lengkap <span class="req">*</span></label>
+          <input class="form-control" type="text" name="name" required placeholder="Nama pengguna">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email <span class="req">*</span></label>
+          <input class="form-control" type="email" name="email" required placeholder="email@agrodashboard.id">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password <span class="req">*</span></label>
+          <input class="form-control" type="password" name="password" required placeholder="Min. 6 karakter" minlength="6">
+        </div>
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label class="form-label">Role <span class="req">*</span></label>
+            <select class="form-control" name="role" required>
+              <option value="distributor">Distributor</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nama Perusahaan</label>
+            <input class="form-control" type="text" name="company" placeholder="PT / CV / UD ...">
+          </div>
+        </div>
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label class="form-label">Telepon</label>
+            <input class="form-control" type="text" name="phone" placeholder="021-xxxxxxx">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Alamat</label>
+            <input class="form-control" type="text" name="address" placeholder="Kota, Provinsi">
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="form-card-footer">
+      <button type="submit" form="user-form" class="btn btn-primary">Simpan Pengguna</button>
+      <a href="{{ url_for('users') }}" class="btn btn-outline">Batal</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

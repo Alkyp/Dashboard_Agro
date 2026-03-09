@@ -1,0 +1,309 @@
+/* ============================================================
+   Dashboard Agro — forms.css
+   Form input, label, select styles
+   ============================================================ */
+
+/* ── Form Shell ────────────────────────────────────────────── */
+.form-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.form-card-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--cream);
+}
+.form-card-header h2 { font-size: 1.1rem; color: var(--forest); }
+.form-card-body { padding: 24px; }
+.form-card-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-soft);
+  background: var(--cream);
+  display: flex; gap: 10px; align-items: center;
+}
+
+/* ── Group ─────────────────────────────────────────────────── */
+.form-group { margin-bottom: 18px; }
+.form-group:last-child { margin-bottom: 0; }
+
+/* ── Label ─────────────────────────────────────────────────── */
+.form-label {
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 7px;
+}
+.form-label .req { color: var(--danger); margin-left: 2px; }
+
+/* ── Input / Select / Textarea ─────────────────────────────── */
+.form-control {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.90rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--text);
+  background: var(--white);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.form-control::placeholder { color: var(--text-muted); opacity: 0.6; }
+
+.form-control:focus {
+  border-color: var(--leaf);
+  box-shadow: 0 0 0 3px rgba(82,183,136,0.18);
+}
+
+.form-control:disabled,
+.form-control[readonly] {
+  background: var(--cream);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+/* Select arrow */
+select.form-control {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A9882' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+/* ── Form Grid ─────────────────────────────────────────────── */
+.form-row { display: grid; gap: 16px; margin-bottom: 18px; }
+.form-row-2 { grid-template-columns: 1fr 1fr; }
+.form-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+.form-row-2 .form-group,
+.form-row-3 .form-group { margin-bottom: 0; }
+
+/* ── Hint ──────────────────────────────────────────────────── */
+.form-hint {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  margin-top: 5px;
+}
+
+/* ── Computed field ────────────────────────────────────────── */
+.form-computed {
+  background: var(--leaf-pale);
+  border-color: rgba(82,183,136,0.4);
+  color: var(--forest);
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Section divider ───────────────────────────────────────── */
+.form-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 6px 0 10px;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 18px;
+  display: flex; align-items: center; gap: 8px;
+}
+.form-section-title::before {
+  content: '';
+  display: block;
+  width: 3px; height: 14px;
+  background: var(--leaf);
+  border-radius: 2px;
+}
+
+/* ============================================================
+   Dashboard Agro — dashboard.css
+   Stat cards, charts, and dashboard-specific components
+   ============================================================ */
+
+/* ── Stat Card ─────────────────────────────────────────────── */
+.stat-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.stat-card:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+
+/* Decorative orb */
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: -28px; right: -28px;
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+.stat-icon {
+  width: 40px; height: 40px;
+  border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px;
+}
+.stat-icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+.stat-icon-green  { background: rgba(82,183,136,0.14);  color: var(--leaf); }
+.stat-icon-wheat  { background: rgba(233,196,106,0.18); color: var(--wheat-dark); }
+.stat-icon-earth  { background: rgba(139,94,60,0.12);   color: var(--earth); }
+.stat-icon-blue   { background: rgba(107,174,214,0.14); color: #2E86C1; }
+.stat-icon-forest { background: rgba(27,67,50,0.1);     color: var(--forest-mid); }
+
+.stat-label {
+  font-size: 0.70rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 7px;
+}
+
+.stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.stat-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+  display: flex; align-items: center; gap: 5px;
+}
+
+.stat-trend-up   { color: var(--leaf); }
+.stat-trend-down { color: var(--danger); }
+
+/* ── Chart Container ───────────────────────────────────────── */
+.chart-container {
+  padding: 20px 20px 10px;
+  position: relative;
+}
+
+.chart-bar-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 150px;
+}
+
+.chart-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  gap: 6px;
+}
+
+.chart-col-inner {
+  flex: 1; width: 100%;
+  display: flex; align-items: flex-end;
+}
+
+.chart-bar {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, var(--leaf-light) 0%, var(--leaf) 100%);
+  min-height: 4px;
+  transition: opacity 0.2s, transform 0.1s;
+  cursor: default;
+  position: relative;
+}
+.chart-bar:hover { opacity: 0.85; transform: scaleY(1.02); transform-origin: bottom; }
+.chart-bar.prev { background: linear-gradient(180deg, rgba(82,183,136,0.45) 0%, rgba(82,183,136,0.3) 100%); }
+
+.chart-x-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ── Top Reseller Mini ─────────────────────────────────────── */
+.reseller-mini {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+.reseller-mini:last-child { border-bottom: none; padding-bottom: 0; }
+
+.reseller-mini-rank { flex-shrink: 0; }
+.reseller-mini-info { flex: 1; min-width: 0; }
+.reseller-mini-name { font-weight: 600; font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.reseller-mini-bar  { margin-top: 5px; }
+.reseller-mini-val  { font-family: 'JetBrains Mono', monospace; font-size: 0.80rem; color: var(--text-muted); flex-shrink: 0; }
+
+/* ── Admin Distributor Card ────────────────────────────────── */
+.dist-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-soft);
+  border-top: 3px solid;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: all 0.2s;
+}
+.dist-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+
+.dist-card-header {
+  padding: 18px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--cream);
+}
+.dist-card-logo {
+  width: 38px; height: 38px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1rem; color: #fff;
+}
+.dist-card-name { font-weight: 700; font-size: 0.92rem; color: var(--forest); }
+.dist-card-contact { font-size: 0.76rem; color: var(--text-muted); margin-top: 2px; }
+
+.dist-card-body { padding: 16px 20px; }
+.dist-metric { margin-bottom: 12px; }
+.dist-metric-label { font-size: 0.70rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+.dist-metric-value { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--text); }
+
+.dist-card-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border-soft);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--cream);
+}
+.dist-footer-stat { font-size: 0.77rem; color: var(--text-muted); }
+
+/* ── Target Progress Card ──────────────────────────────────── */
+.target-row {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+.target-row:last-child { border-bottom: none; }
+.target-row-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.target-name { font-weight: 600; font-size: 0.88rem; }
+.target-pct { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; font-weight: 700; }
+.target-amounts { font-size: 0.75rem; color: var(--text-muted); margin-top: 5px; font-family: 'JetBrains Mono', monospace; }

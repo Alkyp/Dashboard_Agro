@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Tambah Penjualan{% endblock %}
+{% block page_title %}Tambah Penjualan{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/sale_form.js') }}"></script>{% endblock %}
+
+{% block content %}
+<div style="max-width:680px;">
+  <div class="form-card">
+    <div class="form-card-header">
+      <h2>Input Transaksi Penjualan</h2>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-top:4px;">Data penjualan akan otomatis mengurangi stok produk.</p>
+    </div>
+    <div class="form-card-body">
+      <form method="POST" id="sale-form">
+
+        {% if session.role == 'admin' %}
+        <div class="form-group">
+          <label class="form-label">Distributor <span class="req">*</span></label>
+          <select class="form-control" name="distributor_id" id="dist-select" required>
+            <option value="">-- Pilih Distributor --</option>
+            {% for d in distributors %}
+            <option value="{{ d.id }}">{{ d.company }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <hr class="divider">
+        {% endif %}
+
+        <!-- Product data for non-admin -->
+        {% if session.role == 'distributor' %}
+        <script type="application/json" id="product-data-json">{{ products_json | safe }}</script>
+        {% endif %}
+
+        <div class="form-section-title">Detail Transaksi</div>
+
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label class="form-label">Produk <span class="req">*</span></label>
+            <select class="form-control" name="product_id" id="product-select" required>
+              <option value="">-- Pilih Produk --</option>
+              {% for p in products %}
+              <option value="{{ p.id }}" data-price="{{ p.price }}" data-stock="{{ p.stock }}" data-unit="{{ p.unit }}">
+                {{ p.name }} ({{ p.stock }} {{ p.unit }})
+              </option>
+              {% endfor %}
+            </select>
+            <div class="form-hint" id="stock-hint"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Reseller</label>
+            <select class="form-control" name="reseller_id" id="reseller-select">
+              <option value="">-- Tanpa Reseller --</option>
+              {% for r in resellers %}
+              <option value="{{ r.id }}">{{ r.name }} — {{ r.area }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row form-row-3">
+          <div class="form-group">
+            <label class="form-label">Jumlah <span class="req">*</span></label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input class="form-control" type="number" name="quantity" id="qty-input"
+                     min="1" required placeholder="0">
+              <span id="unit-label" style="font-size:0.82rem;color:var(--text-muted);white-space:nowrap;min-width:30px;"></span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Harga Satuan (Rp) <span class="req">*</span></label>
+            <input class="form-control" type="number" name="unit_price" id="price-input"
+                   min="0" required placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Diskon (%)</label>
+            <input class="form-control" type="number" name="discount_pct" id="disc-input"
+                   min="0" max="100" step="0.5" value="0" placeholder="0">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Total</label>
+          <input class="form-control form-computed" type="number" name="total"
+                 id="total-input" readonly placeholder="Otomatis dihitung">
+          <div class="form-hint" id="total-display" style="font-size:0.92rem;color:var(--forest);font-weight:700;margin-top:8px;">Rp 0</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tanggal Penjualan</label>
+          <input class="form-control" type="datetime-local" name="sale_date">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Catatan</label>
+          <textarea class="form-control" name="notes" rows="2" placeholder="Opsional..."></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="form-card-footer">
+      <button type="submit" form="sale-form" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/></svg>
+        Simpan Penjualan
+      </button>
+      <a href="{{ url_for('sales') }}" class="btn btn-outline">Batal</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

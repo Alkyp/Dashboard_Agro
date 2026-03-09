@@ -1,0 +1,195 @@
+/* ============================================================
+   Dashboard Agro — sidebar.css
+   Sidebar navigation styles
+   ============================================================ */
+
+/* ── Shell ─────────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--sidebar-bg);
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Subtle grain texture overlay */
+.sidebar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+/* ── Brand ─────────────────────────────────────────────────── */
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--sidebar-border);
+  flex-shrink: 0;
+}
+
+.brand-logo {
+  width: 40px; height: 40px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--leaf) 0%, var(--leaf-light) 100%);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(82,183,136,0.35);
+}
+
+.brand-logo svg {
+  width: 22px; height: 22px;
+  stroke: var(--forest-deep); fill: none; stroke-width: 2;
+}
+
+.brand-text {}
+.brand-name {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+.brand-tagline {
+  font-size: 0.68rem;
+  color: var(--sidebar-text);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ── Nav Sections ──────────────────────────────────────────── */
+.nav-body {
+  flex: 1;
+  padding: 12px 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-section { margin-bottom: 6px; }
+
+.nav-section-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  color: rgba(122,152,130,0.6);
+  padding: 10px 10px 4px;
+  display: block;
+}
+
+/* ── Nav Item ──────────────────────────────────────────────── */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius);
+  color: var(--sidebar-text);
+  font-size: 0.84rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  position: relative;
+  cursor: pointer;
+  margin-bottom: 1px;
+}
+
+.nav-item svg {
+  width: 17px; height: 17px;
+  flex-shrink: 0;
+  stroke: currentColor; fill: none; stroke-width: 1.8;
+  transition: stroke 0.15s;
+}
+
+.nav-item:hover {
+  background: var(--sidebar-hover);
+  color: #C8E6D0;
+}
+
+.nav-item.active {
+  background: var(--sidebar-active);
+  color: var(--sidebar-active-c);
+  font-weight: 600;
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 25%; bottom: 25%;
+  width: 3px;
+  background: var(--leaf);
+  border-radius: 0 3px 3px 0;
+}
+
+.nav-item.active svg { stroke: var(--leaf-light); }
+
+/* ── Nav Divider ───────────────────────────────────────────── */
+.nav-divider {
+  height: 1px;
+  background: var(--sidebar-border);
+  margin: 8px 10px;
+}
+
+/* ── Sidebar Footer ────────────────────────────────────────── */
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid var(--sidebar-border);
+  flex-shrink: 0;
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-avatar {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--leaf) 0%, var(--forest-mid) 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.9rem;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(82,183,136,0.3);
+}
+
+.sidebar-user-info { flex: 1; min-width: 0; }
+.sidebar-user-name {
+  font-size: 0.82rem; font-weight: 600;
+  color: #D0E8D8;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sidebar-user-role {
+  font-size: 0.70rem;
+  color: var(--sidebar-text);
+  margin-top: 1px;
+}
+
+.sidebar-logout {
+  color: var(--sidebar-text);
+  opacity: 0.65;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  display: flex; align-items: center;
+  padding: 4px;
+  border-radius: 6px;
+}
+.sidebar-logout:hover { opacity: 1; color: var(--danger); background: rgba(224,124,92,0.15); }
+.sidebar-logout svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+/* ── Scrollbar ─────────────────────────────────────────────── */
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(82,183,136,0.25); border-radius: 4px; }

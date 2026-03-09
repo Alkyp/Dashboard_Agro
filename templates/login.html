@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masuk — Dashboard Agro</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+  <style>
+    body { background: var(--cream); display: flex; min-height: 100vh; margin: 0; }
+
+    /* ── Left Panel ── */
+    .login-left {
+      width: 440px; flex-shrink: 0;
+      background: var(--forest-deep);
+      display: flex; flex-direction: column;
+      justify-content: space-between;
+      padding: 44px 44px 40px;
+      position: relative; overflow: hidden;
+    }
+    .login-left::before {
+      content: '';
+      position: absolute; bottom: -100px; left: -100px;
+      width: 400px; height: 400px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(82,183,136,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .login-left::after {
+      content: '';
+      position: absolute; top: -60px; right: -80px;
+      width: 280px; height: 280px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(82,183,136,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .lp-brand { display: flex; align-items: center; gap: 14px; }
+    .lp-logo {
+      width: 46px; height: 46px; border-radius: 13px;
+      background: linear-gradient(135deg, var(--leaf) 0%, var(--leaf-light) 100%);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 6px 18px rgba(82,183,136,0.4);
+    }
+    .lp-logo svg { width: 24px; height: 24px; stroke: var(--forest-deep); fill: none; stroke-width: 2; }
+    .lp-brand-name { font-family: 'Fraunces', Georgia, serif; font-size: 1.2rem; font-weight: 700; color: #fff; }
+    .lp-brand-sub { font-size: 0.70rem; color: rgba(255,255,255,0.4); letter-spacing: 0.6px; text-transform: uppercase; margin-top: 2px; }
+
+    .lp-hero { position: relative; z-index: 1; }
+    .lp-hero h2 {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 2rem; font-weight: 700; color: #fff;
+      line-height: 1.25; letter-spacing: -0.5px; margin-bottom: 16px;
+    }
+    .lp-hero h2 em { color: var(--leaf-light); font-style: italic; }
+    .lp-hero p { font-size: 0.88rem; color: rgba(255,255,255,0.5); line-height: 1.75; }
+
+    .lp-stats { display: flex; gap: 28px; position: relative; z-index: 1; }
+    .lp-stat-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.6rem; font-weight: 700; color: var(--leaf-light);
+    }
+    .lp-stat-desc { font-size: 0.73rem; color: rgba(255,255,255,0.4); margin-top: 3px; }
+
+    /* ── Right Panel ── */
+    .login-right {
+      flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px;
+    }
+    .login-box { width: 100%; max-width: 380px; }
+
+    .login-box h1 {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 1.7rem; font-weight: 700; color: var(--forest);
+      margin-bottom: 6px; letter-spacing: -0.4px;
+    }
+    .login-box .subtitle { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 30px; }
+
+    .login-form .form-group { margin-bottom: 16px; }
+
+    .btn-login {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, var(--leaf) 0%, var(--leaf-light) 100%);
+      color: var(--forest-deep);
+      border: none; border-radius: var(--radius);
+      font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(82,183,136,0.3);
+      margin-top: 8px; letter-spacing: -0.2px;
+    }
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(82,183,136,0.45);
+    }
+
+    /* ── Demo Accounts ── */
+    .demo-box {
+      margin-top: 28px; padding: 16px;
+      background: var(--cream); border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+    .demo-box-title {
+      font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.9px; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 12px;
+    }
+    .demo-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 10px; border-radius: var(--radius-sm);
+      cursor: pointer; transition: background 0.12s; gap: 8px;
+    }
+    .demo-row:hover { background: var(--cream-warm); }
+    .demo-email { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text); }
+    .demo-pw    { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--leaf); }
+    .demo-tag {
+      font-size: 0.68rem; font-weight: 600; padding: 2px 8px;
+      border-radius: 5px; white-space: nowrap; flex-shrink: 0;
+    }
+    .demo-tag.admin { background: rgba(107,174,214,0.15); color: #1A5276; }
+    .demo-tag.dist  { background: var(--leaf-pale); color: var(--forest); }
+
+    @media (max-width: 820px) { .login-left { display: none; } }
+  </style>
+</head>
+<body>
+
+<div class="login-left">
+  <div class="lp-brand">
+    <div class="lp-logo">
+      <svg viewBox="0 0 24 24"><path d="M12 2a9 9 0 0 1 9 9c0 4.97-9 13-9 13S3 15.97 3 11a9 9 0 0 1 9-9z"/><circle cx="12" cy="11" r="3"/></svg>
+    </div>
+    <div>
+      <div class="lp-brand-name">Dashboard Agro</div>
+      <div class="lp-brand-sub">Platform Distribusi Pertanian</div>
+    </div>
+  </div>
+
+  <div class="lp-hero">
+    <h2>Kelola Distribusi Agro <em>Lebih Cerdas</em></h2>
+    <p>Platform terintegrasi untuk memantau penjualan, stok, reseller, dan target distribusi produk pertanian Anda secara real-time.</p>
+  </div>
+
+  <div class="lp-stats">
+    <div>
+      <div class="lp-stat-num">4+</div>
+      <div class="lp-stat-desc">Distributor Aktif</div>
+    </div>
+    <div>
+      <div class="lp-stat-num">480+</div>
+      <div class="lp-stat-desc">Transaksi / Bulan</div>
+    </div>
+    <div>
+      <div class="lp-stat-num">19</div>
+      <div class="lp-stat-desc">Reseller Terdaftar</div>
+    </div>
+  </div>
+</div>
+
+<div class="login-right">
+  <div class="login-box">
+    <h1>Selamat Datang 🌱</h1>
+    <p class="subtitle">Masuk ke akun Dashboard Agro Anda untuk melanjutkan.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+      <div class="flash flash-{{ cat }}" style="margin-bottom:16px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>{{ msg }}</span>
+      </div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="POST" class="login-form" id="login-form">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-control" type="email" name="email" id="email-inp"
+               placeholder="email@agrodashboard.id" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-control" type="password" name="password" id="pw-inp"
+               placeholder="••••••••" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn-login">Masuk ke Dashboard →</button>
+    </form>
+
+    <div class="demo-box">
+      <div class="demo-box-title">🔑 Akun Demo — klik untuk isi otomatis</div>
+      <div class="demo-row" onclick="fillDemo('admin@agrodasboard.id','admin123')">
+        <span class="demo-email">admin@agrodasboard.id</span>
+        <span class="demo-pw">admin123</span>
+        <span class="demo-tag admin">Admin</span>
+      </div>
+      <div class="demo-row" onclick="fillDemo('dist1@agrodashboard.id','dist123')">
+        <span class="demo-email">dist1@agrodashboard.id</span>
+        <span class="demo-pw">dist123</span>
+        <span class="demo-tag dist">PT Subur Makmur</span>
+      </div>
+      <div class="demo-row" onclick="fillDemo('dist2@agrodashboard.id','dist123')">
+        <span class="demo-email">dist2@agrodashboard.id</span>
+        <span class="demo-pw">dist123</span>
+        <span class="demo-tag dist">CV Hijau Lestari</span>
+      </div>
+      <div class="demo-row" onclick="fillDemo('dist3@agrodashboard.id','dist123')">
+        <span class="demo-email">dist3@agrodashboard.id</span>
+        <span class="demo-pw">dist123</span>
+        <span class="demo-tag dist">UD Tani Sejahtera</span>
+      </div>
+      <div class="demo-row" onclick="fillDemo('dist4@agrodashboard.id','dist123')">
+        <span class="demo-email">dist4@agrodashboard.id</span>
+        <span class="demo-pw">dist123</span>
+        <span class="demo-tag dist">PT Agro Nusantara</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+function fillDemo(email, pw) {
+  document.getElementById('email-inp').value = email;
+  document.getElementById('pw-inp').value = pw;
+  document.getElementById('email-inp').focus();
+}
+</script>
+</body>
+</html>

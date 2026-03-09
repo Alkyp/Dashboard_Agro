@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Edit Reseller{% endblock %}
+{% block page_title %}Edit Reseller{% endblock %}
+
+{% block content %}
+<div style="max-width:560px;">
+  <div class="form-card">
+    <div class="form-card-header">
+      <h2>Edit: {{ r.name }}</h2>
+    </div>
+    <div class="form-card-body">
+      <form method="POST" id="reseller-form">
+        <div class="form-group">
+          <label class="form-label">Nama Reseller <span class="req">*</span></label>
+          <input class="form-control" type="text" name="name" required value="{{ r.name }}">
+        </div>
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label class="form-label">Nomor HP</label>
+            <input class="form-control" type="text" name="phone" value="{{ r.phone or '' }}" placeholder="08xxxxxxxxxx">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-control" type="email" name="email" value="{{ r.email or '' }}" placeholder="reseller@email.com">
+          </div>
+        </div>
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label class="form-label">Area / Wilayah</label>
+            <input class="form-control" type="text" name="area" value="{{ r.area or '' }}" placeholder="Bandung Selatan">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Komisi (%)</label>
+            <input class="form-control" type="number" name="commission_pct"
+                   value="{{ r.commission_pct }}" min="0" max="100" step="0.5">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Alamat</label>
+          <textarea class="form-control" name="address" rows="2" placeholder="Opsional...">{{ r.address or '' }}</textarea>
+        </div>
+      </form>
+    </div>
+    <div class="form-card-footer">
+      <button type="submit" form="reseller-form" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/></svg>
+        Simpan Perubahan
+      </button>
+      <a href="{{ url_for('resellers') }}" class="btn btn-outline">Batal</a>
+      <button class="btn btn-danger" style="margin-left:auto;"
+        onclick="showDeleteModal({
+          title: 'Hapus Reseller',
+          message: 'Hapus reseller <strong>{{ r.name }}</strong>? Data penjualan terkait tidak akan terhapus.',
+          action: '{{ url_for('delete_reseller', rid=r.id) }}'
+        })">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        Hapus Reseller
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}

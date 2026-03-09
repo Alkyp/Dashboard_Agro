@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Reseller — Dashboard Agro{% endblock %}
+{% block page_title %}Reseller{% endblock %}
+{% block topbar_right %}
+<a href="{{ url_for('add_reseller') }}" class="btn btn-primary btn-sm">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  Tambah Reseller
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  {% if rows %}
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          {% if session.role == 'admin' %}<th>Distributor</th>{% endif %}
+          <th>Reseller</th>
+          <th>Nomor HP</th>
+          <th>Area</th>
+          <th>Komisi</th>
+          <th>Total Penjualan</th>
+          <th>Bergabung</th>
+          <th style="text-align:center;">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          {% if session.role == 'admin' %}<td class="td-muted" style="font-size:0.80rem;">{{ r.company }}</td>{% endif %}
+          <td>
+            <div class="td-person">
+              <div class="td-avatar">{{ r.name[0]|upper }}</div>
+              <div>
+                <div class="td-bold">{{ r.name }}</div>
+                <div class="td-muted" style="font-size:0.75rem;">{{ r.email or '' }}</div>
+              </div>
+            </div>
+          </td>
+          <td class="mono td-muted">{{ r.phone or '—' }}</td>
+          <td><span class="badge badge-forest">{{ r.area or '—' }}</span></td>
+          <td><span class="badge badge-green">{{ r.commission_pct }}%</span></td>
+          <td><span class="mono" style="font-weight:700;">{{ r.total_sales|rupiah }}</span></td>
+          <td class="td-muted mono" style="font-size:0.78rem;">{{ r.joined_at[:10] }}</td>
+          <td>
+            <div style="display:flex;gap:6px;justify-content:center;">
+              <a href="{{ url_for('edit_reseller', rid=r.id) }}" class="btn btn-sm btn-outline" title="Edit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+              </a>
+              <button class="btn btn-sm btn-danger"
+                onclick="showDeleteModal({
+                  title: 'Hapus Reseller',
+                  message: 'Hapus reseller <strong>{{ r.name }}</strong> dari wilayah {{ r.area or '—' }}?',
+                  action: '{{ url_for('delete_reseller', rid=r.id) }}'
+                })">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                Hapus
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    <p>Belum ada reseller terdaftar.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

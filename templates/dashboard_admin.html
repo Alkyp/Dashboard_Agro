@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard Admin — Dashboard Agro{% endblock %}
+{% block page_title %}Dashboard Admin{% endblock %}
+
+{% block topbar_right %}
+<span style="font-size:0.8rem;color:var(--text-muted);">{{ now.strftime('%B %Y') }}</span>
+{% endblock %}
+
+{% block content %}
+<!-- ── Summary Stats ─────────────────────────────────────────── -->
+<div class="grid-4" style="margin-bottom:22px;">
+  <div class="stat-card fade-in fade-in-1" style="color:var(--leaf);">
+    <div class="stat-icon stat-icon-green">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    </div>
+    <div class="stat-label">Total Pendapatan Bulan Ini</div>
+    <div class="stat-value">{{ total_rev|rupiah }}</div>
+    <div class="stat-sub">Semua distributor</div>
+  </div>
+  <div class="stat-card fade-in fade-in-2" style="color:var(--wheat-dark);">
+    <div class="stat-icon stat-icon-wheat">
+      <svg viewBox="0 0 24 24"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+    </div>
+    <div class="stat-label">Total Transaksi</div>
+    <div class="stat-value">{{ total_tx }}</div>
+    <div class="stat-sub">Bulan ini</div>
+  </div>
+  <div class="stat-card fade-in fade-in-3" style="color:var(--earth);">
+    <div class="stat-icon stat-icon-earth">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+    </div>
+    <div class="stat-label">Distributor Aktif</div>
+    <div class="stat-value">{{ summary|length }}</div>
+    <div class="stat-sub">Terdaftar</div>
+  </div>
+  <div class="stat-card fade-in fade-in-4" style="color:#2E86C1;">
+    <div class="stat-icon stat-icon-blue">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+    </div>
+    <div class="stat-label">Total Reseller</div>
+    <div class="stat-value">{{ summary|sum(attribute='resellers') }}</div>
+    <div class="stat-sub">Semua distributor</div>
+  </div>
+</div>
+
+<!-- ── Distributor Cards ────────────────────────────────────── -->
+<h2 style="font-size:1rem;color:var(--forest);margin-bottom:14px;">Performa Distributor — {{ now.strftime('%B %Y') }}</h2>
+
+{% set colors = ['#52B788','#E9C46A','#8B5E3C','#6BAED6'] %}
+{% set bg_colors = ['rgba(82,183,136,0.15)','rgba(233,196,106,0.18)','rgba(139,94,60,0.12)','rgba(107,174,214,0.15)'] %}
+
+<div class="grid-{% if summary|length == 2 %}2{% elif summary|length == 3 %}3{% else %}4{% endif %}" style="margin-bottom:22px;">
+  {% for s in summary %}
+  {% set ci = loop.index0 % 4 %}
+  <div class="dist-card fade-in" style="border-top-color:{{ colors[ci] }};animation-delay:{{ loop.index0 * 0.06 }}s;">
+    <div class="dist-card-header">
+      <div>
+        <div class="dist-card-name">{{ s.dist.company }}</div>
+        <div class="dist-card-contact">{{ s.dist.name }}</div>
+      </div>
+      <div class="dist-card-logo" style="background:{{ colors[ci] }};">{{ s.dist.company[0] }}</div>
+    </div>
+    <div class="dist-card-body">
+      <div class="grid-2" style="gap:14px;">
+        <div class="dist-metric">
+          <div class="dist-metric-label">Pendapatan</div>
+          <div class="dist-metric-value">{{ s.revenue|rupiah }}</div>
+        </div>
+        <div class="dist-metric">
+          <div class="dist-metric-label">Transaksi</div>
+          <div class="dist-metric-value">{{ s.transactions }}</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <div style="font-size:0.70rem;color:var(--text-muted);font-weight:600;letter-spacing:0.6px;text-transform:uppercase;margin-bottom:6px;">Share Pendapatan</div>
+        <div class="prog-bar">
+          <div class="prog-fill" style="width:{{ (s.revenue / total_rev * 100)|int if total_rev > 0 else 0 }}%;background:{{ colors[ci] }};"></div>
+        </div>
+        <div style="font-size:0.73rem;color:var(--text-muted);margin-top:4px;font-family:'JetBrains Mono',monospace;">{{ '%.1f'|format(s.revenue / total_rev * 100 if total_rev > 0 else 0) }}%</div>
+      </div>
+    </div>
+    <div class="dist-card-footer">
+      <span class="dist-footer-stat">{{ s.resellers }} reseller · {{ s.products }} produk</span>
+      <div style="display:flex;gap:6px;">
+        <a href="{{ url_for('sales') }}?dist={{ s.dist.id }}" class="btn btn-sm btn-ghost">Penjualan</a>
+        <a href="{{ url_for('products') }}?dist={{ s.dist.id }}" class="btn btn-sm btn-ghost">Produk</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- ── Comparison Table ─────────────────────────────────────── -->
+<div class="card fade-in" style="animation-delay:0.25s;">
+  <div class="card-header">
+    <span class="card-title">Perbandingan Lengkap</span>
+  </div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Distributor</th>
+          <th>PIC</th>
+          <th>Pendapatan Bulan Ini</th>
+          <th>Transaksi</th>
+          <th>Reseller</th>
+          <th>Produk</th>
+          <th>Rata-rata / Transaksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in summary|sort(attribute='revenue', reverse=True) %}
+        <tr>
+          <td class="td-bold">{{ s.dist.company }}</td>
+          <td class="td-muted">{{ s.dist.name }}</td>
+          <td><span class="mono" style="font-weight:700;">{{ s.revenue|rupiah }}</span></td>
+          <td><span class="badge badge-green">{{ s.transactions }}</span></td>
+          <td>{{ s.resellers }}</td>
+          <td>{{ s.products }}</td>
+          <td class="td-muted mono">{{ (s.revenue / s.transactions)|rupiah if s.transactions > 0 else 'Rp 0' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

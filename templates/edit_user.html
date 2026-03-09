@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}Edit Pengguna{% endblock %}
+{% block page_title %}Edit Pengguna{% endblock %}
+
+{% block content %}
+<div style="max-width:560px;">
+  <div class="form-card">
+    <div class="form-card-header">
+      <h2>Edit: {{ user.name }}</h2>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-top:4px;">{{ user.email }}</p>
+    </div>
+    <div class="form-card-body">
+      <form method="POST" id="edit-user-form">
+        <div class="form-group">
+          <label class="form-label">Nama Lengkap <span class="req">*</span></label>
+          <input class="form-control" type="text" name="name" required value="{{ user.name }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-control" value="{{ user.email }}" disabled
+                 style="background:var(--cream);color:var(--text-muted);">
+          <div class="form-hint">Email tidak dapat diubah.</div>
+        </div>
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label class="form-label">Role <span class="req">*</span></label>
+            <select class="form-control" name="role" required>
+              <option value="distributor" {% if user.role == 'distributor' %}selected{% endif %}>Distributor</option>
+              <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nama Perusahaan</label>
+            <input class="form-control" type="text" name="company" value="{{ user.company or '' }}" placeholder="PT / CV / UD ...">
+          </div>
+        </div>
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label class="form-label">Telepon</label>
+            <input class="form-control" type="text" name="phone" value="{{ user.phone or '' }}" placeholder="021-xxxxxxx">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Alamat</label>
+            <input class="form-control" type="text" name="address" value="{{ user.address or '' }}" placeholder="Kota, Provinsi">
+          </div>
+        </div>
+
+        <div style="background:var(--cream);border-radius:var(--radius);padding:16px;border:1px solid var(--border);">
+          <div class="form-section-title" style="margin-bottom:14px;">Reset Password</div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Password Baru</label>
+            <input class="form-control" type="password" name="new_password"
+                   placeholder="Kosongkan jika tidak ingin mengganti" minlength="6">
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="form-card-footer">
+      <button type="submit" form="edit-user-form" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/></svg>
+        Simpan Perubahan
+      </button>
+      <a href="{{ url_for('users') }}" class="btn btn-outline">Batal</a>
+      {% if user.id != session.user_id %}
+      <button class="btn btn-danger" style="margin-left:auto;"
+        onclick="showDeleteModal({
+          title: 'Hapus Pengguna',
+          message: 'Hapus akun <strong>{{ user.name }}</strong>? Pengguna tidak akan bisa login lagi.',
+          action: '{{ url_for('delete_user', uid_target=user.id) }}'
+        })">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        Hapus Pengguna
+      </button>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

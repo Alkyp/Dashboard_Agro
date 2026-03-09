@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Leaderboard — Dashboard Agro{% endblock %}
+{% block page_title %}Leaderboard{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">
+      Peringkat {% if session.role == 'admin' %}Distributor{% else %}Reseller{% endif %} — Bulan Ini
+    </span>
+  </div>
+  <div class="card-body">
+    {% if rows %}
+    {% for r in rows %}
+    {% set rank = loop.index %}
+    <div class="lb-row {% if rank == 1 %}top1{% elif rank == 2 %}top2{% elif rank == 3 %}top3{% endif %}">
+      <div>
+        <span class="rank-num rank-{% if rank <= 3 %}{{ rank }}{% else %}n{% endif %}">
+          {% if rank == 1 %}🥇{% elif rank == 2 %}🥈{% elif rank == 3 %}🥉{% else %}#{{ rank }}{% endif %}
+        </span>
+      </div>
+      <div class="lb-info">
+        <div class="lb-name">{{ r.name }}</div>
+        <div class="lb-sub">{{ r.sub or '' }}</div>
+      </div>
+      <div class="lb-value">
+        <div class="lb-amount">{{ r.total_sales|rupiah }}</div>
+        <div class="lb-tx">{{ r.tx_count }} transaksi</div>
+      </div>
+      <div class="lb-bar-wrap">
+        <div class="prog-bar">
+          <div class="prog-fill" style="width:{{ (r.total_sales / rows[0].total_sales * 100)|int if rows[0].total_sales > 0 else 0 }}%;"></div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="18,20 18,10"/><polyline points="12,20 12,4"/><polyline points="6,20 6,14"/></svg>
+      <p>Belum ada data penjualan bulan ini.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
