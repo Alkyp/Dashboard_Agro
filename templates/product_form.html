@@ -9,7 +9,7 @@
       <h2>{% if prod %}Edit: {{ prod.name }}{% else %}Produk Baru{% endif %}</h2>
     </div>
     <div class="form-card-body">
-      <form method="POST" id="product-form">
+      <form method="POST" id="product-form" data-confirm="Simpan data produk ini?" data-confirm-title="Simpan Produk" data-confirm-icon="📦" data-confirm-label="Ya, Simpan">
 
         {% if session.role == 'admin' and not prod %}
         <div class="form-group">

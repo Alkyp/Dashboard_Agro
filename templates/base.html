@@ -4,20 +4,56 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Dashboard Agro{% endblock %}</title>
-
-  <!-- CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/tables.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
-
+  <style>
+    /* Role badges */
+    .role-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 20px; font-size: 11px;
+      font-weight: 600; text-transform: uppercase; letter-spacing: .5px;
+    }
+    .role-badge.super_admin, .role-badge.admin {
+      background: linear-gradient(135deg,#6c3fe0,#9b6bff);
+      color: #fff;
+    }
+    .role-badge.admin_cabang {
+      background: linear-gradient(135deg,#0ea5e9,#38bdf8);
+      color: #fff;
+    }
+    .role-badge.user, .role-badge.distributor {
+      background: linear-gradient(135deg,#22c55e,#4ade80);
+      color: #fff;
+    }
+    /* Role pill topbar */
+    .role-pill.super_admin, .role-pill.admin {
+      background: linear-gradient(135deg,#6c3fe0,#9b6bff);
+      color: #fff; padding: 4px 12px; border-radius: 20px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+    }
+    .role-pill.admin_cabang {
+      background: linear-gradient(135deg,#0ea5e9,#38bdf8);
+      color: #fff; padding: 4px 12px; border-radius: 20px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+    }
+    .role-pill.user, .role-pill.distributor {
+      background: linear-gradient(135deg,#22c55e,#4ade80);
+      color: #fff; padding: 4px 12px; border-radius: 20px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+    }
+    .nav-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: #ef4444; color: #fff; border-radius: 10px;
+      font-size: 9px; font-weight: 700; padding: 2px 6px;
+      margin-left: auto;
+    }
+  </style>
   {% block extra_css %}{% endblock %}
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════
-     SIDEBAR
-═══════════════════════════════════════════════ -->
 <aside class="sidebar">
   <div class="sidebar-brand">
     <div class="brand-logo">
@@ -28,7 +64,12 @@
     </div>
     <div class="brand-text">
       <div class="brand-name">Dashboard Agro</div>
-      <div class="brand-tagline">Platform Distribusi</div>
+      <div class="brand-tagline">
+        {% if is_super_admin() %}Platform Distribusi
+        {% elif is_admin_cabang() %}{{ session.company }}
+        {% else %}{{ session.company or 'Platform Distribusi' }}
+        {% endif %}
+      </div>
     </div>
   </div>
 
@@ -71,17 +112,46 @@
         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Reseller
       </a>
-      {% if session.role == 'admin' %}
-      <a href="{{ url_for('users') }}" class="nav-item {% if 'user' in request.endpoint %}active{% endif %}">
-        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+
+      {# Pengguna: bisa diakses super_admin dan admin_cabang #}
+      {% if is_any_admin() %}
+      <a href="{{ url_for('users') }}" class="nav-item {% if 'user' in request.endpoint and request.endpoint != 'profile' %}active{% endif %}">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
         Pengguna
+        {% if is_super_admin() %}
+          <span class="nav-badge" title="Kelola semua pengguna">SA</span>
+        {% else %}
+          <span class="nav-badge" title="Kelola pengguna cabang">C</span>
+        {% endif %}
       </a>
       {% endif %}
+
       <a href="{{ url_for('profile') }}" class="nav-item {% if request.endpoint == 'profile' %}active{% endif %}">
         <svg viewBox="0 0 24 24"><path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"/><polygon points="18,2 22,6 12,16 8,16 8,12 18,2"/></svg>
         Profil
       </a>
     </div>
+
+    {# Role Info Panel untuk admin #}
+    {% if is_any_admin() %}
+    <div class="nav-divider"></div>
+    <div class="nav-section">
+      <span class="nav-section-label">Akun Anda</span>
+      <div style="padding:8px 12px;">
+        <span class="role-badge {{ session.role }}">
+          {% if is_super_admin() %}👑 Super Admin
+          {% elif is_admin_cabang() %}🏢 Admin Cabang
+          {% else %}👤 User
+          {% endif %}
+        </span>
+        {% if is_admin_cabang() %}
+        <div style="font-size:11px;color:var(--text-muted,#aaa);margin-top:6px;">
+          Perusahaan: <strong>{{ session.company }}</strong>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
   </nav>
 
   <div class="sidebar-footer">
@@ -98,27 +168,23 @@
   </div>
 </aside>
 
-<!-- ═══════════════════════════════════════════════
-     MAIN
-═══════════════════════════════════════════════ -->
 <div class="main-wrap">
-
-  <!-- Topbar -->
   <header class="topbar">
     <div class="topbar-left">
       <span class="topbar-title">{% block page_title %}{% endblock %}</span>
     </div>
     <div class="topbar-right">
       {% block topbar_right %}{% endblock %}
-      <span class="role-pill {{ session.role or 'distributor' }}">
-        {{ session.role|title if session.role else 'Guest' }}
+      <span class="role-pill {{ session.role or 'user' }}">
+        {% if is_super_admin() %}👑 Super Admin
+        {% elif is_admin_cabang() %}🏢 Admin Cabang
+        {% else %}👤 {{ session.role|title if session.role else 'User' }}
+        {% endif %}
       </span>
     </div>
   </header>
 
-  <!-- Content -->
   <main class="content-area">
-    <!-- Flash Messages (akan dikonversi ke toast oleh main.js) -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
       <div class="flash-list">
@@ -137,12 +203,10 @@
       </div>
       {% endif %}
     {% endwith %}
-
     {% block content %}{% endblock %}
   </main>
 </div>
 
-<!-- ── JS ──────────────────────────────────────── -->
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
 {% block extra_js %}{% endblock %}

@@ -1,53 +1,139 @@
 {% extends 'base.html' %}
-{% block title %}Tambah Pengguna{% endblock %}
-{% block page_title %}Tambah Pengguna{% endblock %}
+{% block title %}Tambah Pengguna — Dashboard Agro{% endblock %}
+{% block page_title %}Tambah Pengguna Baru{% endblock %}
+
+{% block extra_css %}
+<style>
+.role-option-card {
+  border:2px solid var(--border,#e5e7eb); border-radius:10px;
+  padding:14px 16px; cursor:pointer; transition:all .2s;
+  display:flex; align-items:center; gap:12px;
+}
+.role-option-card:hover { border-color:#7c3aed; background:#f5f3ff; }
+.role-option-card.selected { border-color:#7c3aed; background:#f5f3ff; }
+.role-option-card input[type=radio] { display:none; }
+.role-icon { font-size:22px; }
+.role-desc { font-size:11px; color:var(--text-muted,#666); margin-top:2px; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div style="max-width:560px;">
-  <div class="form-card">
-    <div class="form-card-header"><h2>Pengguna Baru</h2></div>
-    <div class="form-card-body">
-      <form method="POST" id="user-form">
-        <div class="form-group">
-          <label class="form-label">Nama Lengkap <span class="req">*</span></label>
-          <input class="form-control" type="text" name="name" required placeholder="Nama pengguna">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email <span class="req">*</span></label>
-          <input class="form-control" type="email" name="email" required placeholder="email@agrodashboard.id">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Password <span class="req">*</span></label>
-          <input class="form-control" type="password" name="password" required placeholder="Min. 6 karakter" minlength="6">
-        </div>
-        <div class="form-row form-row-2">
-          <div class="form-group">
-            <label class="form-label">Role <span class="req">*</span></label>
-            <select class="form-control" name="role" required>
-              <option value="distributor">Distributor</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Nama Perusahaan</label>
-            <input class="form-control" type="text" name="company" placeholder="PT / CV / UD ...">
-          </div>
-        </div>
-        <div class="form-row form-row-2">
-          <div class="form-group">
-            <label class="form-label">Telepon</label>
-            <input class="form-control" type="text" name="phone" placeholder="021-xxxxxxx">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Alamat</label>
-            <input class="form-control" type="text" name="address" placeholder="Kota, Provinsi">
-          </div>
-        </div>
-      </form>
+<div style="max-width:640px;margin:0 auto;">
+  <div class="card">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border,#e5e7eb);">
+      <h2 style="font-size:18px;font-weight:700;margin:0;">➕ Tambah Pengguna Baru</h2>
+      <p style="font-size:13px;color:var(--text-muted,#888);margin:4px 0 0;">
+        {% if is_super_admin() %}
+        Sebagai Super Admin, Anda dapat membuat akun dengan role apapun.
+        {% else %}
+        Sebagai Admin Cabang, Anda dapat membuat User atau Admin Cabang untuk perusahaan Anda.
+        {% endif %}
+      </p>
     </div>
-    <div class="form-card-footer">
-      <button type="submit" form="user-form" class="btn btn-primary">Simpan Pengguna</button>
-      <a href="{{ url_for('users') }}" class="btn btn-outline">Batal</a>
-    </div>
+    <form method="post" data-confirm="Buat akun pengguna baru ini?" data-confirm-title="Buat Pengguna" data-confirm-icon="👤" data-confirm-label="Ya, Buat Akun" style="padding:24px;">
+
+      {# ── Role Selection ── #}
+      <div class="form-group" style="margin-bottom:20px;">
+        <label style="font-weight:700;font-size:13px;display:block;margin-bottom:10px;">
+          Role Pengguna <span style="color:#ef4444;">*</span>
+        </label>
+        <div style="display:grid;gap:10px;">
+          {% if is_super_admin() %}
+          <label class="role-option-card" id="card-super_admin">
+            <input type="radio" name="role" value="super_admin" onchange="updateRoleCard(this)">
+            <div class="role-icon">👑</div>
+            <div>
+              <div style="font-weight:700;">Super Admin</div>
+              <div class="role-desc">Hak akses penuh ke seluruh sistem. Bisa menambah admin baru.</div>
+            </div>
+          </label>
+          {% endif %}
+          <label class="role-option-card" id="card-admin_cabang">
+            <input type="radio" name="role" value="admin_cabang" onchange="updateRoleCard(this)">
+            <div class="role-icon">🏢</div>
+            <div>
+              <div style="font-weight:700;">Admin Cabang</div>
+              <div class="role-desc">Kelola pengguna & data dalam satu perusahaan/cabang.</div>
+            </div>
+          </label>
+          <label class="role-option-card selected" id="card-user">
+            <input type="radio" name="role" value="user" checked onchange="updateRoleCard(this)">
+            <div class="role-icon">👤</div>
+            <div>
+              <div style="font-weight:700;">User</div>
+              <div class="role-desc">Akses standar: kelola produk, penjualan, dan reseller sendiri.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group">
+          <label>Nama Lengkap <span style="color:#ef4444;">*</span></label>
+          <input type="text" name="name" required placeholder="Nama lengkap" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>Email <span style="color:#ef4444;">*</span></label>
+          <input type="email" name="email" required placeholder="email@domain.com" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>Password <span style="color:#ef4444;">*</span></label>
+          <input type="password" name="password" required placeholder="Minimal 6 karakter" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>No. Telepon</label>
+          <input type="text" name="phone" placeholder="08xx-xxxx-xxxx" class="form-control">
+        </div>
+      </div>
+
+      {# Company: Super Admin bisa pilih/ketik, Admin Cabang fixed #}
+      <div class="form-group">
+        <label>Perusahaan</label>
+        {% if is_admin_cabang() %}
+          <input type="text" class="form-control" value="{{ session.company }}" readonly
+                 style="background:var(--bg,#f8fafc);cursor:not-allowed;">
+          <input type="hidden" name="company" value="{{ session.company }}">
+          <small style="color:var(--text-muted,#888);font-size:11px;">
+            Pengguna akan otomatis ditempatkan di perusahaan Anda.
+          </small>
+        {% else %}
+          <input type="text" name="company" list="company-list"
+                 placeholder="Nama perusahaan (atau pilih)" class="form-control">
+          <datalist id="company-list">
+            {% for c in companies %}
+            <option value="{{ c.company }}">{{ c.company }}</option>
+            {% endfor %}
+          </datalist>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label>Alamat</label>
+        <input type="text" name="address" placeholder="Kota, Provinsi" class="form-control">
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:24px;">
+        <button type="submit" class="btn btn-primary" style="flex:1;">
+          ✅ Buat Akun Pengguna
+        </button>
+        <a href="{{ url_for('users') }}" class="btn btn-secondary" style="flex:1;text-align:center;">
+          Batal
+        </a>
+      </div>
+    </form>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateRoleCard(radio) {
+  document.querySelectorAll('.role-option-card').forEach(el => el.classList.remove('selected'));
+  radio.closest('.role-option-card').classList.add('selected');
+}
+// Set default
+document.querySelectorAll('input[name=role]').forEach(r => {
+  if (r.checked) r.closest('.role-option-card').classList.add('selected');
+});
+</script>
 {% endblock %}

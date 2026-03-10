@@ -1,78 +1,152 @@
 {% extends 'base.html' %}
-{% block title %}Edit Pengguna{% endblock %}
+{% block title %}Edit Pengguna — Dashboard Agro{% endblock %}
 {% block page_title %}Edit Pengguna{% endblock %}
 
-{% block content %}
-<div style="max-width:560px;">
-  <div class="form-card">
-    <div class="form-card-header">
-      <h2>Edit: {{ user.name }}</h2>
-      <p style="font-size:0.82rem;color:var(--text-muted);margin-top:4px;">{{ user.email }}</p>
-    </div>
-    <div class="form-card-body">
-      <form method="POST" id="edit-user-form">
-        <div class="form-group">
-          <label class="form-label">Nama Lengkap <span class="req">*</span></label>
-          <input class="form-control" type="text" name="name" required value="{{ user.name }}">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <input class="form-control" value="{{ user.email }}" disabled
-                 style="background:var(--cream);color:var(--text-muted);">
-          <div class="form-hint">Email tidak dapat diubah.</div>
-        </div>
-        <div class="form-row form-row-2">
-          <div class="form-group">
-            <label class="form-label">Role <span class="req">*</span></label>
-            <select class="form-control" name="role" required>
-              <option value="distributor" {% if user.role == 'distributor' %}selected{% endif %}>Distributor</option>
-              <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Nama Perusahaan</label>
-            <input class="form-control" type="text" name="company" value="{{ user.company or '' }}" placeholder="PT / CV / UD ...">
-          </div>
-        </div>
-        <div class="form-row form-row-2">
-          <div class="form-group">
-            <label class="form-label">Telepon</label>
-            <input class="form-control" type="text" name="phone" value="{{ user.phone or '' }}" placeholder="021-xxxxxxx">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Alamat</label>
-            <input class="form-control" type="text" name="address" value="{{ user.address or '' }}" placeholder="Kota, Provinsi">
-          </div>
-        </div>
+{% block extra_css %}
+<style>
+.role-option-card {
+  border:2px solid var(--border,#e5e7eb); border-radius:10px;
+  padding:14px 16px; cursor:pointer; transition:all .2s;
+  display:flex; align-items:center; gap:12px;
+}
+.role-option-card:hover { border-color:#7c3aed; background:#f5f3ff; }
+.role-option-card.selected { border-color:#7c3aed; background:#f5f3ff; }
+.role-option-card input[type=radio] { display:none; }
+.role-option-card.disabled { opacity:.4; cursor:not-allowed; pointer-events:none; }
+</style>
+{% endblock %}
 
-        <div style="background:var(--cream);border-radius:var(--radius);padding:16px;border:1px solid var(--border);">
-          <div class="form-section-title" style="margin-bottom:14px;">Reset Password</div>
-          <div class="form-group" style="margin-bottom:0;">
-            <label class="form-label">Password Baru</label>
-            <input class="form-control" type="password" name="new_password"
-                   placeholder="Kosongkan jika tidak ingin mengganti" minlength="6">
+{% block content %}
+<div style="max-width:640px;margin:0 auto;">
+  <div class="card">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border,#e5e7eb);">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:44px;height:44px;border-radius:50%;
+          background:linear-gradient(135deg,#6c3fe0,#9b6bff);
+          color:#fff;display:flex;align-items:center;justify-content:center;
+          font-weight:700;font-size:18px;">
+          {{ user.avatar_char or user.name[0]|upper }}
+        </div>
+        <div>
+          <h2 style="font-size:18px;font-weight:700;margin:0;">Edit: {{ user.name }}</h2>
+          <div style="font-size:12px;color:var(--text-muted,#888);">
+            {{ user.email }} · Bergabung {{ user.created_at[:10] }}
           </div>
         </div>
-      </form>
+      </div>
     </div>
-    <div class="form-card-footer">
-      <button type="submit" form="edit-user-form" class="btn btn-primary">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/></svg>
-        Simpan Perubahan
-      </button>
-      <a href="{{ url_for('users') }}" class="btn btn-outline">Batal</a>
-      {% if user.id != session.user_id %}
-      <button class="btn btn-danger" style="margin-left:auto;"
-        onclick="showDeleteModal({
-          title: 'Hapus Pengguna',
-          message: 'Hapus akun <strong>{{ user.name }}</strong>? Pengguna tidak akan bisa login lagi.',
-          action: '{{ url_for('delete_user', uid_target=user.id) }}'
-        })">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-        Hapus Pengguna
-      </button>
-      {% endif %}
-    </div>
+
+    <form method="post" data-confirm="Simpan perubahan data pengguna?" data-confirm-title="Update Pengguna" data-confirm-icon="✏️" data-confirm-label="Ya, Simpan" style="padding:24px;">
+
+      {# ── Role Assignment ── #}
+      <div class="form-group" style="margin-bottom:20px;">
+        <label style="font-weight:700;font-size:13px;display:block;margin-bottom:10px;">
+          🎭 Assign Role
+        </label>
+        <div style="display:grid;gap:10px;">
+          {% if is_super_admin() %}
+          <label class="role-option-card {% if user.role in ('super_admin','admin') %}selected{% endif %}"
+                 id="card-super_admin">
+            <input type="radio" name="role" value="super_admin"
+                   {% if user.role in ('super_admin','admin') %}checked{% endif %}
+                   onchange="updateRoleCard(this)">
+            <div style="font-size:22px;">👑</div>
+            <div>
+              <div style="font-weight:700;">Super Admin</div>
+              <div style="font-size:11px;color:var(--text-muted,#666);">Hak akses penuh ke seluruh sistem</div>
+            </div>
+          </label>
+          {% endif %}
+
+          <label class="role-option-card {% if user.role == 'admin_cabang' %}selected{% endif %}"
+                 id="card-admin_cabang">
+            <input type="radio" name="role" value="admin_cabang"
+                   {% if user.role == 'admin_cabang' %}checked{% endif %}
+                   onchange="updateRoleCard(this)">
+            <div style="font-size:22px;">🏢</div>
+            <div>
+              <div style="font-weight:700;">Admin Cabang</div>
+              <div style="font-size:11px;color:var(--text-muted,#666);">Kelola pengguna dalam satu perusahaan</div>
+            </div>
+          </label>
+
+          <label class="role-option-card {% if user.role in ('user','distributor') %}selected{% endif %}"
+                 id="card-user">
+            <input type="radio" name="role" value="user"
+                   {% if user.role in ('user','distributor') %}checked{% endif %}
+                   onchange="updateRoleCard(this)">
+            <div style="font-size:22px;">👤</div>
+            <div>
+              <div style="font-weight:700;">User</div>
+              <div style="font-size:11px;color:var(--text-muted,#666);">Akses standar, kelola data sendiri</div>
+            </div>
+          </label>
+        </div>
+        {% if user.id == session.user_id %}
+        <small style="color:#f59e0b;font-size:11px;margin-top:6px;display:block;">
+          ⚠️ Anda tidak dapat mengubah role akun sendiri.
+        </small>
+        {% endif %}
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group">
+          <label>Nama Lengkap <span style="color:#ef4444;">*</span></label>
+          <input type="text" name="name" value="{{ user.name }}" required class="form-control">
+        </div>
+        <div class="form-group">
+          <label>No. Telepon</label>
+          <input type="text" name="phone" value="{{ user.phone or '' }}" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Perusahaan</label>
+        {% if is_admin_cabang() %}
+          <input type="text" class="form-control" value="{{ session.company }}" readonly
+                 style="background:var(--bg,#f8fafc);cursor:not-allowed;">
+          <input type="hidden" name="company" value="{{ session.company }}">
+        {% else %}
+          <input type="text" name="company" value="{{ user.company or '' }}"
+                 list="company-list" class="form-control">
+          <datalist id="company-list">
+            {% for c in companies %}
+            <option value="{{ c.company }}">{{ c.company }}</option>
+            {% endfor %}
+          </datalist>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label>Alamat</label>
+        <input type="text" name="address" value="{{ user.address or '' }}"
+               placeholder="Kota, Provinsi" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label>Password Baru</label>
+        <input type="password" name="new_password" placeholder="Kosongkan jika tidak ingin ganti" class="form-control">
+        <small style="font-size:11px;color:var(--text-muted,#888);">Isi hanya jika ingin mengganti password</small>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:24px;">
+        <button type="submit" class="btn btn-primary" style="flex:1;">
+          💾 Simpan Perubahan
+        </button>
+        <a href="{{ url_for('users') }}" class="btn btn-secondary" style="flex:1;text-align:center;">
+          Batal
+        </a>
+      </div>
+    </form>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateRoleCard(radio) {
+  document.querySelectorAll('.role-option-card').forEach(el => el.classList.remove('selected'));
+  radio.closest('.role-option-card').classList.add('selected');
+}
+</script>
 {% endblock %}

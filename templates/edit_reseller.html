@@ -9,7 +9,7 @@
       <h2>Edit: {{ r.name }}</h2>
     </div>
     <div class="form-card-body">
-      <form method="POST" id="reseller-form">
+      <form method="POST" id="reseller-form" data-confirm="Simpan perubahan reseller?" data-confirm-title="Update Reseller" data-confirm-icon="🤝" data-confirm-label="Ya, Simpan">
         <div class="form-group">
           <label class="form-label">Nama Reseller <span class="req">*</span></label>
           <input class="form-control" type="text" name="name" required value="{{ r.name }}">

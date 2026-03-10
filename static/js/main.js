@@ -294,9 +294,269 @@ document.addEventListener('DOMContentLoaded', () => {
   initFlashToasts();
   initActiveNav();
   initTooltips();
+  initFormConfirm();
 
   // Auto-set datetime inputs to now if empty
   document.querySelectorAll('input[type="datetime-local"]').forEach(inp => {
     if (!inp.value) inp.value = nowDatetimeLocal();
   });
 });
+
+
+// ════════════════════════════════════════════════════════════════
+//  SUCCESS MODAL — muncul setelah flash 'success'
+// ════════════════════════════════════════════════════════════════
+
+const SUCCESS_ICONS = {
+  add:    '➕',
+  save:   '💾',
+  delete: '🗑️',
+  toggle: '🔄',
+  send:   '📧',
+  login:  '🔑',
+  default:'✅',
+};
+
+/**
+ * Tampilkan modal sukses yang indah.
+ * @param {string} message  - Pesan sukses
+ * @param {string} [icon]   - Emoji ikon (opsional)
+ * @param {string} [title]  - Judul modal (opsional)
+ * @param {number} [autoClose] - ms sampai modal tutup otomatis (0 = tidak)
+ */
+function showSuccessModal(message, icon = '✅', title = 'Berhasil!', autoClose = 2800) {
+  document.getElementById('_suc-modal')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = '_suc-modal';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:10000;
+    background:rgba(15,35,24,.5);backdrop-filter:blur(5px);
+    display:flex;align-items:center;justify-content:center;padding:20px;
+    animation:modalBgIn .2s ease;
+  `;
+
+  overlay.innerHTML = `
+    <div id="_suc-box" style="
+      background:#fff;border-radius:20px;
+      width:100%;max-width:380px;text-align:center;
+      box-shadow:0 24px 64px rgba(15,35,24,.22);
+      overflow:hidden;
+      animation:sucIn .35s cubic-bezier(.34,1.56,.64,1);
+      font-family:'Plus Jakarta Sans',sans-serif;
+    ">
+      <!-- Confetti bar -->
+      <div style="height:6px;background:linear-gradient(90deg,#52B788,#95D5B2,#52B788);
+                  background-size:200% 100%;animation:shimmer 1.8s infinite linear;"></div>
+
+      <div style="padding:36px 32px 32px;">
+        <!-- Icon circle -->
+        <div style="
+          width:72px;height:72px;border-radius:50%;margin:0 auto 18px;
+          background:linear-gradient(135deg,#F0FBF5,#D8F3DC);
+          display:flex;align-items:center;justify-content:center;
+          font-size:34px;
+          box-shadow:0 8px 24px rgba(82,183,136,.25);
+          animation:iconPop .4s .15s cubic-bezier(.34,1.56,.64,1) both;
+        ">${icon}</div>
+
+        <div style="font-size:20px;font-weight:800;color:#1A2E1F;
+                    letter-spacing:-.4px;margin-bottom:10px;">${title}</div>
+        <div style="font-size:14px;color:#7A9882;line-height:1.6;
+                    margin-bottom:24px;">${message}</div>
+
+        <!-- Progress bar (auto close) -->
+        ${autoClose > 0 ? `
+        <div style="height:4px;background:#E8F0EA;border-radius:4px;overflow:hidden;margin-bottom:20px;">
+          <div id="_suc-prog" style="height:100%;background:linear-gradient(90deg,#52B788,#95D5B2);
+               border-radius:4px;width:100%;
+               transition:width ${autoClose}ms linear;"></div>
+        </div>` : ''}
+
+        <button id="_suc-close" style="
+          padding:10px 32px;border-radius:12px;font-size:14px;font-weight:700;
+          background:linear-gradient(135deg,#52B788,#95D5B2);
+          color:#1B4332;border:none;cursor:pointer;
+          font-family:'Plus Jakarta Sans',sans-serif;
+          box-shadow:0 4px 14px rgba(82,183,136,.3);
+          transition:all .15s;
+        ">Oke, Lanjutkan →</button>
+      </div>
+    </div>
+  `;
+
+  // Styles
+  if (!document.getElementById('_suc-style')) {
+    const s = document.createElement('style');
+    s.id = '_suc-style';
+    s.textContent = `
+      @keyframes modalBgIn { from{opacity:0} to{opacity:1} }
+      @keyframes sucIn     { from{opacity:0;transform:scale(.82) translateY(16px)} to{opacity:1;transform:scale(1) translateY(0)} }
+      @keyframes iconPop   { from{transform:scale(0) rotate(-20deg)} to{transform:scale(1) rotate(0)} }
+      @keyframes shimmer   { from{background-position:200% 0} to{background-position:-200% 0} }
+      #_suc-close:hover    { transform:translateY(-2px);box-shadow:0 8px 20px rgba(82,183,136,.4)!important; }
+    `;
+    document.head.appendChild(s);
+  }
+
+  document.body.appendChild(overlay);
+
+  const close = () => {
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity .2s';
+    setTimeout(() => overlay.remove(), 200);
+  };
+
+  document.getElementById('_suc-close').addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+  // Start progress bar shrink
+  if (autoClose > 0) {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const prog = document.getElementById('_suc-prog');
+        if (prog) prog.style.width = '0%';
+      });
+    });
+    setTimeout(close, autoClose);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  SAVE CONFIRM MODAL — konfirmasi sebelum submit form
+// ════════════════════════════════════════════════════════════════
+
+/**
+ * Tampilkan modal konfirmasi sebelum menyimpan form.
+ * @param {object} opts
+ * @param {string}   opts.title    - Judul
+ * @param {string}   opts.message  - Pesan
+ * @param {string}   opts.icon     - Emoji ikon
+ * @param {function} opts.onConfirm - Callback ketika dikonfirmasi
+ * @param {string}   [opts.btnLabel] - Label tombol konfirmasi
+ */
+function showSaveConfirm({ title='Konfirmasi Simpan', message='Simpan perubahan ini?',
+                           icon='💾', onConfirm, btnLabel='Ya, Simpan' }) {
+  document.getElementById('_save-modal')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = '_save-modal';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:9999;
+    background:rgba(15,35,24,.5);backdrop-filter:blur(4px);
+    display:flex;align-items:center;justify-content:center;padding:20px;
+    animation:modalBgIn .2s ease;
+  `;
+
+  overlay.innerHTML = `
+    <div style="
+      background:#fff;border-radius:18px;width:100%;max-width:400px;
+      box-shadow:0 20px 60px rgba(15,35,24,.22);overflow:hidden;
+      animation:sucIn .28s cubic-bezier(.34,1.56,.64,1);
+      font-family:'Plus Jakarta Sans',sans-serif;
+    ">
+      <div style="padding:24px 24px 18px;border-bottom:1px solid #E8F0EA;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:44px;height:44px;border-radius:13px;
+            background:#F0FBF5;display:flex;align-items:center;
+            justify-content:center;font-size:22px;flex-shrink:0;">${icon}</div>
+          <div style="font-weight:700;font-size:16px;color:#1A2E1F;">${title}</div>
+        </div>
+      </div>
+      <div style="padding:18px 24px 20px;">
+        <p style="font-size:14px;color:#7A9882;line-height:1.65;margin:0;">${message}</p>
+      </div>
+      <div style="padding:14px 24px 20px;border-top:1px solid #E8F0EA;
+                  display:flex;gap:10px;justify-content:flex-end;background:#F8F4EF;">
+        <button id="_save-cancel" style="
+          padding:9px 20px;border-radius:10px;font-size:13px;font-weight:600;
+          background:#fff;color:#3D5C47;border:1.5px solid #D5E8DA;
+          cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Batal</button>
+        <button id="_save-confirm" style="
+          padding:9px 20px;border-radius:10px;font-size:13px;font-weight:700;
+          background:linear-gradient(135deg,#52B788,#74C69D);
+          color:#1B4332;border:none;cursor:pointer;
+          font-family:'Plus Jakarta Sans',sans-serif;
+          box-shadow:0 3px 10px rgba(82,183,136,.3);">${btnLabel}</button>
+      </div>
+    </div>
+  `;
+
+  const close = () => {
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity .15s';
+    setTimeout(() => overlay.remove(), 150);
+  };
+
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  document.addEventListener('keydown', function esc(e) {
+    if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); }
+  });
+
+  document.getElementById('_save-cancel').addEventListener('click', close);
+  document.getElementById('_save-confirm').addEventListener('click', () => {
+    overlay.remove();
+    if (typeof onConfirm === 'function') onConfirm();
+  });
+
+  const btn = document.getElementById('_save-confirm');
+  btn.addEventListener('mouseenter', () => { btn.style.transform = 'translateY(-1px)'; btn.style.boxShadow = '0 6px 18px rgba(82,183,136,.4)'; });
+  btn.addEventListener('mouseleave', () => { btn.style.transform = ''; btn.style.boxShadow = '0 3px 10px rgba(82,183,136,.3)'; });
+}
+
+// ════════════════════════════════════════════════════════════════
+//  AUTO INTERCEPT: form[data-confirm] → modal sebelum submit
+// ════════════════════════════════════════════════════════════════
+
+function initFormConfirm() {
+  document.querySelectorAll('form[data-confirm]').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const title   = form.dataset.confirmTitle   || 'Konfirmasi';
+      const message = form.dataset.confirm         || 'Simpan data ini?';
+      const icon    = form.dataset.confirmIcon     || '💾';
+      const label   = form.dataset.confirmLabel    || 'Ya, Simpan';
+      showSaveConfirm({
+        title, message, icon, btnLabel: label,
+        onConfirm: () => form.submit()
+      });
+    });
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+//  UPGRADE: Flash 'success' → Success Modal (bukan cuma toast)
+// ════════════════════════════════════════════════════════════════
+
+function initFlashToasts() {
+  const list = document.querySelector('.flash-list');
+  if (!list) return;
+
+  list.querySelectorAll('.flash').forEach(el => {
+    const isSuccess = el.classList.contains('flash-success');
+    const isError   = el.classList.contains('flash-error');
+    const text = el.querySelector('span')?.textContent || el.textContent.trim();
+
+    if (isSuccess) {
+      // Deteksi jenis aksi dari kata kunci
+      let icon = '✅';
+      const t = text.toLowerCase();
+      if (t.includes('ditambahkan') || t.includes('dibuat'))          icon = '➕';
+      else if (t.includes('diperbarui') || t.includes('disimpan'))   icon = '💾';
+      else if (t.includes('dihapus') || t.includes('dinonaktifkan')) icon = '🗑️';
+      else if (t.includes('diaktifkan'))                              icon = '✅';
+      else if (t.includes('dikirim') || t.includes('email'))         icon = '📧';
+      else if (t.includes('berhasil masuk'))                          icon = '🔑';
+
+      showSuccessModal(text, icon);
+    } else {
+      showToast(text, isError ? 'error' : 'info');
+    }
+
+    el.remove();
+  });
+
+  if (!list.children.length) list.remove();
+}
+

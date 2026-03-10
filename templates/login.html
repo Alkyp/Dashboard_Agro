@@ -179,35 +179,30 @@
         <input class="form-control" type="password" name="password" id="pw-inp"
                placeholder="••••••••" required autocomplete="current-password">
       </div>
+      <div style="text-align:right;margin-top:-8px;margin-bottom:12px;">
+        <a href="/forgot-password" style="font-size:12px;color:var(--leaf);font-weight:600;text-decoration:none;">
+          🔑 Lupa Password?
+        </a>
+      </div>
       <button type="submit" class="btn-login">Masuk ke Dashboard →</button>
     </form>
 
     <div class="demo-box">
       <div class="demo-box-title">🔑 Akun Demo — klik untuk isi otomatis</div>
-      <div class="demo-row" onclick="fillDemo('admin@agrodasboard.id','admin123')">
-        <span class="demo-email">admin@agrodasboard.id</span>
+      <div class="demo-row" onclick="fillDemo('superadmin@agrodashboard.id','admin123')">
+        <span class="demo-email">superadmin@agrodashboard.id</span>
         <span class="demo-pw">admin123</span>
-        <span class="demo-tag admin">Admin</span>
+        <span class="demo-tag admin">👑 Super Admin</span>
       </div>
-      <div class="demo-row" onclick="fillDemo('dist1@agrodashboard.id','dist123')">
+      <div class="demo-row" onclick="fillDemo('cabang1@agrodashboard.id','cabang123')">
+        <span class="demo-email">cabang1@agrodashboard.id</span>
+        <span class="demo-pw">cabang123</span>
+        <span class="demo-tag" style="background:#e0f2fe;color:#0369a1;">🏢 Admin Cabang</span>
+      </div>
+      <div class="demo-row" onclick="fillDemo('dist1@agrodashboard.id','user123')">
         <span class="demo-email">dist1@agrodashboard.id</span>
-        <span class="demo-pw">dist123</span>
-        <span class="demo-tag dist">PT Subur Makmur</span>
-      </div>
-      <div class="demo-row" onclick="fillDemo('dist2@agrodashboard.id','dist123')">
-        <span class="demo-email">dist2@agrodashboard.id</span>
-        <span class="demo-pw">dist123</span>
-        <span class="demo-tag dist">CV Hijau Lestari</span>
-      </div>
-      <div class="demo-row" onclick="fillDemo('dist3@agrodashboard.id','dist123')">
-        <span class="demo-email">dist3@agrodashboard.id</span>
-        <span class="demo-pw">dist123</span>
-        <span class="demo-tag dist">UD Tani Sejahtera</span>
-      </div>
-      <div class="demo-row" onclick="fillDemo('dist4@agrodashboard.id','dist123')">
-        <span class="demo-email">dist4@agrodashboard.id</span>
-        <span class="demo-pw">dist123</span>
-        <span class="demo-tag dist">PT Agro Nusantara</span>
+        <span class="demo-pw">user123</span>
+        <span class="demo-tag dist">👤 User</span>
       </div>
     </div>
   </div>

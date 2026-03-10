@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard Cabang — {{ company }}{% endblock %}
+{% block page_title %}Dashboard — {{ company }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:28px; }
+.kpi-card {
+  background:var(--card-bg,#fff); border:1px solid var(--border,#e5e7eb);
+  border-radius:14px; padding:20px; position:relative; overflow:hidden;
+}
+.kpi-accent { position:absolute; top:0; left:0; width:4px; height:100%; border-radius:4px 0 0 4px; }
+.kpi-value { font-size:26px; font-weight:800; line-height:1; margin-bottom:4px; }
+.kpi-label { font-size:12px; color:var(--text-muted,#888); font-weight:500; }
+.dist-table { width:100%; border-collapse:collapse; }
+.dist-table th, .dist-table td { padding:10px 14px; font-size:13px; border-bottom:1px solid var(--border,#e5e7eb); }
+.dist-table th { font-weight:700; text-align:left; background:var(--bg,#f8fafc); }
+.progress-bar-wrap { width:120px; background:var(--border,#e5e7eb); border-radius:8px; height:6px; display:inline-block; vertical-align:middle; margin-right:6px; }
+.progress-bar-fill { height:6px; border-radius:8px; background:linear-gradient(90deg,#22c55e,#4ade80); }
+</style>
+{% endblock %}
+
+{% block content %}
+{# ── Header Info ── #}
+<div class="card" style="margin-bottom:20px;padding:16px 20px;
+  background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border:none;">
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div style="font-size:36px;">🏢</div>
+    <div>
+      <div style="font-size:20px;font-weight:800;">{{ company }}</div>
+      <div style="font-size:13px;opacity:.85;">Dashboard Admin Cabang · {{ now.strftime('%B %Y') }}</div>
+    </div>
+    <div style="margin-left:auto;">
+      <a href="{{ url_for('users') }}" class="btn" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);">
+        👥 Kelola Pengguna ({{ branch_user_count }})
+      </a>
+    </div>
+  </div>
+</div>
+
+{# ── KPI ── #}
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:#0ea5e9;"></div>
+    <div class="kpi-label">Total Pengguna Cabang</div>
+    <div class="kpi-value" style="color:#0369a1;">{{ branch_user_count }}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:#22c55e;"></div>
+    <div class="kpi-label">Pendapatan Bulan Ini</div>
+    <div class="kpi-value" style="color:#15803d;">{{ total_rev|rupiah }}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:#f59e0b;"></div>
+    <div class="kpi-label">Total Transaksi</div>
+    <div class="kpi-value" style="color:#b45309;">{{ total_tx }}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:#8b5cf6;"></div>
+    <div class="kpi-label">User Aktif</div>
+    <div class="kpi-value" style="color:#6d28d9;">{{ summary|length }}</div>
+  </div>
+</div>
+
+{# ── Tabel User Cabang ── #}
+<div class="card" style="margin-bottom:20px;">
+  <div style="padding:16px 20px;border-bottom:1px solid var(--border,#e5e7eb);display:flex;align-items:center;justify-content:space-between;">
+    <h3 style="font-size:15px;font-weight:700;margin:0;">👤 Performa User Bulan Ini</h3>
+    <a href="{{ url_for('add_user') }}" class="btn btn-primary" style="font-size:12px;padding:6px 14px;">+ Tambah User</a>
+  </div>
+  {% if summary %}
+  <div style="overflow-x:auto;">
+    <table class="dist-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>User</th>
+          <th>Pendapatan</th>
+          <th>Transaksi</th>
+          <th>Reseller</th>
+          <th>Produk</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set max_rev_val = summary | map(attribute="revenue") | max | default(1) %}
+        {% for s in summary %}
+        <tr>
+          <td style="font-weight:700;color:var(--text-muted,#888);">{{ loop.index }}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#4ade80);
+                color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;">
+                {{ s.dist.avatar_char or s.dist.name[0]|upper }}
+              </div>
+              <div>
+                <div style="font-weight:600;font-size:13px;">{{ s.dist.name }}</div>
+                <div style="font-size:11px;color:var(--text-muted,#888);">{{ s.dist.email }}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            {% if max_rev_val > 0 %}
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" style="width:{{ ([s.revenue / max_rev_val * 100, 100] | sort | first) }}%"></div>
+            </div>
+            {% endif %}
+            {{ s.revenue|rupiah }}
+          </td>
+          <td>{{ s.transactions }}</td>
+          <td>{{ s.resellers }}</td>
+          <td>{{ s.products }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div style="padding:40px;text-align:center;color:var(--text-muted,#888);">
+    <div style="font-size:36px;margin-bottom:10px;">📭</div>
+    <div>Belum ada user di perusahaan ini.</div>
+    <a href="{{ url_for('add_user') }}" class="btn btn-primary" style="margin-top:12px;display:inline-block;">
+      + Tambah User Pertama
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

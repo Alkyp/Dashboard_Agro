@@ -11,7 +11,7 @@
       <p style="font-size:0.82rem;color:var(--text-muted);margin-top:4px;">Data penjualan akan otomatis mengurangi stok produk.</p>
     </div>
     <div class="form-card-body">
-      <form method="POST" id="sale-form">
+      <form method="POST" id="sale-form" data-confirm="Simpan transaksi penjualan ini?" data-confirm-title="Simpan Penjualan" data-confirm-icon="📊" data-confirm-label="Ya, Simpan">
 
         {% if session.role == 'admin' %}
         <div class="form-group">

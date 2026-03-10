@@ -28,7 +28,7 @@
   <div class="form-card">
     <div class="form-card-header"><h2>Edit Profil</h2></div>
     <div class="form-card-body">
-      <form method="POST" id="profile-form">
+      <form method="POST" id="profile-form" data-confirm="Simpan perubahan profil?" data-confirm-title="Update Profil" data-confirm-icon="👤" data-confirm-label="Ya, Simpan">
         <div class="form-group">
           <label class="form-label">Nama Lengkap <span class="req">*</span></label>
           <input class="form-control" type="text" name="name" required value="{{ user.name }}">

@@ -29,7 +29,7 @@
     <div class="stat-icon stat-icon-earth">
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
     </div>
-    <div class="stat-label">Distributor Aktif</div>
+    <div class="stat-label">User Aktif</div>
     <div class="stat-value">{{ summary|length }}</div>
     <div class="stat-sub">Terdaftar</div>
   </div>
@@ -43,8 +43,33 @@
   </div>
 </div>
 
+
+<!-- ── Role Stats ──────────────────────────────────────────── -->
+<div class="grid-4" style="margin-bottom:22px;margin-top:10px;">
+  <div class="stat-card" style="border-left:4px solid #7c3aed;">
+    <div class="stat-label">👑 Super Admin</div>
+    <div class="stat-value" style="color:#7c3aed;">{{ total_super_admin }}</div>
+    <div class="stat-sub">Admin utama sistem</div>
+  </div>
+  <div class="stat-card" style="border-left:4px solid #0ea5e9;">
+    <div class="stat-label">🏢 Admin Cabang</div>
+    <div class="stat-value" style="color:#0ea5e9;">{{ total_cabang }}</div>
+    <div class="stat-sub">Per perusahaan</div>
+  </div>
+  <div class="stat-card" style="border-left:4px solid #22c55e;">
+    <div class="stat-label">👤 User</div>
+    <div class="stat-value" style="color:#22c55e;">{{ total_user }}</div>
+    <div class="stat-sub">Pengguna aktif</div>
+  </div>
+  <div class="stat-card" style="border-left:4px solid #f59e0b;">
+    <div class="stat-label">👥 Total Pengguna</div>
+    <div class="stat-value" style="color:#b45309;">{{ total_users }}</div>
+    <div class="stat-sub">Semua role</div>
+  </div>
+</div>
+
 <!-- ── Distributor Cards ────────────────────────────────────── -->
-<h2 style="font-size:1rem;color:var(--forest);margin-bottom:14px;">Performa Distributor — {{ now.strftime('%B %Y') }}</h2>
+<h2 style="font-size:1rem;color:var(--forest);margin-bottom:14px;">Performa User — {{ now.strftime('%B %Y') }}</h2>
 
 {% set colors = ['#52B788','#E9C46A','#8B5E3C','#6BAED6'] %}
 {% set bg_colors = ['rgba(82,183,136,0.15)','rgba(233,196,106,0.18)','rgba(139,94,60,0.12)','rgba(107,174,214,0.15)'] %}
@@ -56,7 +81,7 @@
     <div class="dist-card-header">
       <div>
         <div class="dist-card-name">{{ s.dist.company }}</div>
-        <div class="dist-card-contact">{{ s.dist.name }}</div>
+        <div class="dist-card-contact">{{ s.dist.name }} <span class="role-badge user" style="font-size:9px;padding:1px 6px;">User</span></div>
       </div>
       <div class="dist-card-logo" style="background:{{ colors[ci] }};">{{ s.dist.company[0] }}</div>
     </div>
